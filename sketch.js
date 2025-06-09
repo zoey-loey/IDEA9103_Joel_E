@@ -695,7 +695,6 @@ function drawNoiseLines() {
   }
 }
 
-// Perlin noise part
 function applyPaperTexture(textureType) {
   noiseGraphics.noFill();
   let colorVariation = 15;
