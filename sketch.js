@@ -1,3 +1,8 @@
+
+
+
+
+
 let currentExpression = 'level 1';
 let buttons = [];
 
@@ -21,6 +26,11 @@ function setup() {
 
   createButtons(); // Setup initial buttons based on window size
 }
+
+
+
+
+
 
 function draw() {
   background(220);
@@ -516,3 +526,4 @@ function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   createButtons(); // Recalculate button positions
 }
+
