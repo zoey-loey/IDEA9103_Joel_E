@@ -3,8 +3,8 @@ let rez2;
 let gap;
 let length;
 let startVary;
-let startColor; // Perlin noise part 1
-
+let startColor; // Perlin noise part 
+let noiseGraphics;
 
 let currentExpression = 'level 1';
 let buttons = [];
@@ -24,11 +24,11 @@ function createButtons() {
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  colorMode(HSB, 360, 100, 100, 255);
+  textAlign(CENTER, CENTER);
+
   noiseGraphics = createGraphics(windowWidth, windowHeight);
   noiseGraphics.colorMode(HSB, 360, 100, 100, 255);
-  noiseGraphics.background(25, 80, 30); // 深绿色底色
-
+  noiseGraphics.background(25, 80, 30);
   rez1 = 0.006;
   rez2 = 0.003;
   gap = 15;
@@ -36,20 +36,134 @@ function setup() {
   startVary = 40;
   startColor = 40;
   noiseGraphics.strokeCap(SQUARE);
+  drawNoiseLines();
+  applyPaperTexture(1);
+  applyPaperTexture(0);
 
-  drawNoiseLines(noiseGraphics);
-  applyPaperTexture(noiseGraphics, 1);
-  applyPaperTexture(noiseGraphics, 0);
-
-  // 保留组员A/B的设置内容，比如 createButtons() 等
-  createButtons();
+  createButtons(); //This line belongs to my group member
 }
+
+// function setup() {
+//   createCanvas(windowWidth, windowHeight);
+//   textAlign(CENTER, CENTER);
+
+
+//   createButtons(); // Setup initial buttons based on window size
+// }
+
+// // Beginning of Perlin noise
+// function setup() {    
+//   createCanvas(windowWidth, windowHeight);
+//   colorMode(HSB, 360, 100, 100, 255);
+//   background(25, 80, 30); 
+
+//   rez1 = 0.006;
+//   rez2 = 0.003;
+//   gap = 15;
+//   length = 12; 
+//   startVary = 40;
+//   startColor = 40;
+//   strokeCap(SQUARE);
+
+//   drawNoiseLines();
+//   applyPaperTexture(1);
+//   applyPaperTexture(0);
+// }
+
+
+// function draw() {}
+
+// function drawNoiseLines() {
+//   for (let x = -20; x < width + 20; x += gap) {
+//     for (let y = -20; y < height + 20; y += gap) {
+//       let colorNoise = noise(x * rez2, y * rez2);
+//       let hue;
+
+//       if (colorNoise < 0.3) {
+//         hue = map(colorNoise, 0, 0.3, 210, 220); 
+//       } else if (colorNoise < 0.7) {
+//         hue = map(colorNoise, 0.3, 0.7, 30, 50); 
+//       } else {
+//         hue = map(colorNoise, 0.7, 1, 20, 30); 
+//       }
+
+//       let saturation = map(colorNoise, 0, 1, 70, 90);
+//       let brightness = map(colorNoise, 0, 1, 20, 80);
+
+//       stroke(hue, saturation, brightness, 160 + random(-30, 30)); 
+
+//       let currentX = x + random(-startVary, startVary);
+//       let currentY = y + random(-startVary, startVary);
+
+//       for (let step = 10; step > 0; step--) {
+//         strokeWeight(step * 0.6); 
+
+//         let angleNoise = (noise(currentX * rez1, currentY * rez1) - 0.2) * 2;
+//         let angle = angleNoise * PI * 0.2;
+
+//         let nextX = cos(angle) * length + currentX;
+//         let nextY = sin(angle) * length + currentY;
+
+//         line(currentX, currentY, nextX, nextY);
+
+//         currentX = nextX;
+//         currentY = nextY;
+//       }
+//     }
+//   }
+// }
+
+// function applyPaperTexture(textureType) {
+//   noFill();
+//   let colorVariation = 15;
+//   let textureCount;
+//   let alphaValue;
+
+//   if (textureType < 1) {
+//     textureCount = 10000;
+//     strokeWeight(width * 0.02);
+//     alphaValue = 15;
+//   } else {
+//     textureCount = 15000;
+//     strokeWeight(max(1, width * 0.0011));
+//     alphaValue = 210;
+//   }
+
+//   colorMode(RGB);
+//   for (let i = 0; i < textureCount; i++) {
+//     let x = random(width);
+//     let y = random(height);
+//     let sampledColor = get(x, y);
+//     stroke(
+//       sampledColor[0] + random(-colorVariation, colorVariation),
+//       sampledColor[1] + random(-colorVariation, colorVariation),
+//       sampledColor[2] + random(-colorVariation, colorVariation),
+//       alphaValue
+//     );
+
+//     push();
+//     translate(x, y);
+//     rotate(random(TWO_PI));
+//     curve(
+//       height * random(0.035, 0.14),
+//       0,
+//       0,
+//       height * random(-0.03, 0.03),
+//       height * random(-0.03, 0.03),
+//       height * random(0.035, 0.07),
+//       height * random(0.035, 0.07),
+//       height * random(0.035, 0.14)
+//     );
+//     pop();
+//   }
+//   colorMode(HSB, 360, 100, 100, 255);
+// }   // Perlin noise part ends
 
 
 function draw() {
-  image(noiseGraphics, 0, 0); // ✅ 最底层背景
+  image(noiseGraphics, 0, 0); 
 
-  // ✅ 保留组员B的图层
+  // The below lines belong to my group member
   drawWave();
   drawLayerBottom();
   drawSeaSunlight();
@@ -57,118 +171,28 @@ function draw() {
   drawLandCircles();
   drawRightCircles();
 
-  // ✅ 组员A的角色
-  drawScreamCharacter(currentExpression);
-
-  // ✅ 按钮在最上层
-  drawButtons();
-}
-
-// ✅ 将原来的 drawNoiseLines 改为接收 graphics 参数
-function drawNoiseLines(pg) {
-  for (let x = -20; x < width + 20; x += gap) {
-    for (let y = -20; y < height + 20; y += gap) {
-      let colorNoise = noise(x * rez2, y * rez2);
-      let hue;
-
-      if (colorNoise < 0.3) {
-        hue = map(colorNoise, 0, 0.3, 210, 220);
-      } else if (colorNoise < 0.7) {
-        hue = map(colorNoise, 0.3, 0.7, 30, 50);
-      } else {
-        hue = map(colorNoise, 0.7, 1, 20, 30);
-      }
-
-      let saturation = map(colorNoise, 0, 1, 70, 90);
-      let brightness = map(colorNoise, 0, 1, 20, 80);
-
-      pg.stroke(hue, saturation, brightness, 160 + random(-30, 30));
-
-      let currentX = x + random(-startVary, startVary);
-      let currentY = y + random(-startVary, startVary);
-
-      for (let step = 10; step > 0; step--) {
-        pg.strokeWeight(step * 0.6);
-        let angleNoise = (noise(currentX * rez1, currentY * rez1) - 0.2) * 2;
-        let angle = angleNoise * PI * 0.2;
-
-        let nextX = cos(angle) * length + currentX;
-        let nextY = sin(angle) * length + currentY;
-
-        pg.line(currentX, currentY, nextX, nextY);
-
-        currentX = nextX;
-        currentY = nextY;
-      }
-    }
-  }
-}
-
-// ✅ 修改 applyPaperTexture 同样接收 pg 参数
-function applyPaperTexture(pg, textureType) {
-  pg.noFill();
-  let colorVariation = 15;
-  let textureCount;
-  let alphaValue;
-
-  if (textureType < 1) {
-    textureCount = 10000;
-    pg.strokeWeight(width * 0.02);
-    alphaValue = 15;
-  } else {
-    textureCount = 15000;
-    pg.strokeWeight(max(1, width * 0.0011));
-    alphaValue = 210;
-  }
-
-  pg.colorMode(RGB);
-  for (let i = 0; i < textureCount; i++) {
-    let x = random(width);
-    let y = random(height);
-    let sampledColor = pg.get(x, y);
-    pg.stroke(
-      sampledColor[0] + random(-colorVariation, colorVariation),
-      sampledColor[1] + random(-colorVariation, colorVariation),
-      sampledColor[2] + random(-colorVariation, colorVariation),
-      alphaValue
-    );
-
-    pg.push();
-    pg.translate(x, y);
-    pg.rotate(random(TWO_PI));
-    pg.curve(
-      height * random(0.035, 0.14),
-      0,
-      0,
-      height * random(-0.03, 0.03),
-      height * random(-0.03, 0.03),
-      height * random(0.035, 0.07),
-      height * random(0.035, 0.07),
-      height * random(0.035, 0.14)
-    );
-    pg.pop();
-  }
-  pg.colorMode(HSB, 360, 100, 100, 255);
+  drawScreamCharacter(currentExpression); 
+  drawButtons(); 
 }
 
 
-function draw() {
+// function draw() {
+  
 
+//   // Draw Background Elements
+//   drawWave();
+//   drawLayerBottom();
+//   drawSeaSunlight();
+//   drawBubbleland();
+//   drawLandCircles();
+//   drawRightCircles();
 
-  // Draw Background Elements
-  drawWave();
-  drawLayerBottom();
-  drawSeaSunlight();
-  drawBubbleland();
-  drawLandCircles();
-  drawRightCircles();
+//   // Draw character
+//   drawScreamCharacter(currentExpression);
 
-  // Draw character
-  drawScreamCharacter(currentExpression);
-
-  // Draw buttons
-  drawButtons();
-}
+//   // Draw buttons
+//   drawButtons();
+// }
 
 // Level 1
 function drawWave() {
@@ -642,8 +666,69 @@ function mousePressed() {
   }
 }
 
+function drawNoiseLines() {
+  for (let x = -20; x < width + 20; x += gap) {
+    for (let y = -20; y < height + 20; y += gap) {
+      let colorNoise = noise(x * rez2, y * rez2);
+      let hue;
+      if (colorNoise < 0.3) hue = map(colorNoise, 0, 0.3, 210, 220);
+      else if (colorNoise < 0.7) hue = map(colorNoise, 0.3, 0.7, 30, 50);
+      else hue = map(colorNoise, 0.7, 1, 20, 30);
+
+      let saturation = map(colorNoise, 0, 1, 70, 90);
+      let brightness = map(colorNoise, 0, 1, 20, 80);
+      noiseGraphics.stroke(hue, saturation, brightness, 160 + random(-30, 30));
+
+      let currentX = x + random(-startVary, startVary);
+      let currentY = y + random(-startVary, startVary);
+      for (let step = 10; step > 0; step--) {
+        noiseGraphics.strokeWeight(step * 0.6);
+        let angleNoise = (noise(currentX * rez1, currentY * rez1) - 0.2) * 2;
+        let angle = angleNoise * PI * 0.2;
+        let nextX = cos(angle) * length + currentX;
+        let nextY = sin(angle) * length + currentY;
+        noiseGraphics.line(currentX, currentY, nextX, nextY);
+        currentX = nextX;
+        currentY = nextY;
+      }
+    }
+  }
+}
+
+// Perlin noise part
+function applyPaperTexture(textureType) {
+  noiseGraphics.noFill();
+  let colorVariation = 15;
+  let textureCount = textureType < 1 ? 10000 : 15000;
+  let alphaValue = textureType < 1 ? 15 : 210;
+  noiseGraphics.strokeWeight(textureType < 1 ? width * 0.02 : max(1, width * 0.0011));
+
+  noiseGraphics.colorMode(RGB);
+  for (let i = 0; i < textureCount; i++) {
+    let x = random(width);
+    let y = random(height);
+    let sampledColor = noiseGraphics.get(x, y);
+    noiseGraphics.stroke(
+      sampledColor[0] + random(-colorVariation, colorVariation),
+      sampledColor[1] + random(-colorVariation, colorVariation),
+      sampledColor[2] + random(-colorVariation, colorVariation),
+      alphaValue
+    );
+    noiseGraphics.push();
+    noiseGraphics.translate(x, y);
+    noiseGraphics.rotate(random(TWO_PI));
+    noiseGraphics.curve(
+      height * random(0.035, 0.14), 0,
+      0, height * random(-0.03, 0.03),
+      height * random(-0.03, 0.03), height * random(0.035, 0.07),
+      height * random(0.035, 0.07), height * random(0.035, 0.14)
+    );
+    noiseGraphics.pop();
+  }
+  noiseGraphics.colorMode(HSB, 360, 100, 100, 255);
+}
+
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   createButtons(); // Recalculate button positions
 }
-
