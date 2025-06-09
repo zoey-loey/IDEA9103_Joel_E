@@ -695,37 +695,25 @@ function drawNoiseLines() {
   }
 }
 
-// Perlin noise part
-function applyPaperTexture(textureType) {
-  noiseGraphics.noFill();
-  let colorVariation = 15;
-  let textureCount = textureType < 1 ? 10000 : 15000;
-  let alphaValue = textureType < 1 ? 15 : 210;
-  noiseGraphics.strokeWeight(textureType < 1 ? width * 0.02 : max(1, width * 0.0011));
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  textAlign(CENTER, CENTER);
 
-  noiseGraphics.colorMode(RGB);
-  for (let i = 0; i < textureCount; i++) {
-    let x = random(width);
-    let y = random(height);
-    let sampledColor = noiseGraphics.get(x, y);
-    noiseGraphics.stroke(
-      sampledColor[0] + random(-colorVariation, colorVariation),
-      sampledColor[1] + random(-colorVariation, colorVariation),
-      sampledColor[2] + random(-colorVariation, colorVariation),
-      alphaValue
-    );
-    noiseGraphics.push();
-    noiseGraphics.translate(x, y);
-    noiseGraphics.rotate(random(TWO_PI));
-    noiseGraphics.curve(
-      height * random(0.035, 0.14), 0,
-      0, height * random(-0.03, 0.03),
-      height * random(-0.03, 0.03), height * random(0.035, 0.07),
-      height * random(0.035, 0.07), height * random(0.035, 0.14)
-    );
-    noiseGraphics.pop();
-  }
+  noiseGraphics = createGraphics(windowWidth, windowHeight);
   noiseGraphics.colorMode(HSB, 360, 100, 100, 255);
+  noiseGraphics.background(25, 80, 30);
+  rez1 = 0.006;
+  rez2 = 0.003;
+  gap = 15;
+  length = 12;
+  startVary = 40;
+  startColor = 40;
+  noiseGraphics.strokeCap(SQUARE);
+  drawNoiseLines();
+  applyPaperTexture(1);
+  applyPaperTexture(0);
+
+  createButtons(); //This line belongs to my group member
 }
 
 function windowResized() {
