@@ -727,7 +727,20 @@ function applyPaperTexture(textureType) {
   noiseGraphics.colorMode(HSB, 360, 100, 100, 255);
 }
 
+// function windowResized() {
+//   resizeCanvas(windowWidth, windowHeight);
+//   createButtons(); // Recalculate button positions
+// }
+
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  createButtons(); // Recalculate button positions
+  createButtons(); 
+
+  noiseGraphics = createGraphics(windowWidth, windowHeight);
+  noiseGraphics.colorMode(HSB, 360, 100, 100, 255);
+  noiseGraphics.background(25, 80, 30);
+  noiseGraphics.strokeCap(SQUARE);
+  drawNoiseLines();
+  applyPaperTexture(1);
+  applyPaperTexture(0);
 }
