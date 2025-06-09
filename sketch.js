@@ -3,8 +3,8 @@ let rez2;
 let gap;
 let length;
 let startVary;
-let startColor; // Perlin noise part 
-let noiseGraphics;
+let startColor; 
+let noiseGraphics; // Perlin noise part 
 
 let currentExpression = 'level 1';
 let buttons = [];
