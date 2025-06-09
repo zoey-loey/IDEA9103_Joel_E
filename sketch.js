@@ -22,7 +22,26 @@ function createButtons() {
   buttons.push(new Button("Level 4", width / 2 + spacing, y, () => currentExpression = 'level 4'));
 }
 
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  textAlign(CENTER, CENTER);
 
+  noiseGraphics = createGraphics(windowWidth, windowHeight);
+  noiseGraphics.colorMode(HSB, 360, 100, 100, 255);
+  noiseGraphics.background(25, 80, 30);
+  rez1 = 0.006;
+  rez2 = 0.003;
+  gap = 15;
+  length = 12;
+  startVary = 40;
+  startColor = 40;
+  noiseGraphics.strokeCap(SQUARE);
+  drawNoiseLines();
+  applyPaperTexture(1);
+  applyPaperTexture(0);
+
+  createButtons(); //This line belongs to my group member
+}
 
 // function setup() {
 //   createCanvas(windowWidth, windowHeight);
