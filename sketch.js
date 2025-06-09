@@ -12,7 +12,8 @@ let buttons = [];
 function createButtons() {
   buttons = [];
 
-  let y = height - 55;
+  // Change original height - 55 from my group member to 50
+  let y = 50;
   let spacing = 150;
 
   //Define Buttons
