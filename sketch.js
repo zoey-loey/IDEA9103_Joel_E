@@ -59,6 +59,9 @@ function createButtons() {
 function setup() {
   createCanvas(windowWidth, windowHeight);
 
+  scaleX = windowWidth / originW;
+  scaleY = windowHeight / originH;
+  
   // Refer to https://p5js.org/reference/p5/createGraphics/
   // level1 pg
   pg = createGraphics(originW, originH);
@@ -332,12 +335,25 @@ function mousePressed() {
   }
 }
 
-// This part of the code adjusts the canvas size and scale when the window is resized. Use resizeCanvas() to adjust the canvas size, and calculate scaleX and scaleY based on the new window size and original size.
+// function windowResized() {
+//   resizeCanvas(windowWidth, windowHeight);
+//   createButtons(); // Recalculate button positions
+// }
+
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  createButtons(); //This line belongs to my group member
-  scaleX = width / originW;
-  scaleY = height / originH;
+  createButtons(); 
+  
+  scaleX = windowWidth / originW;
+  scaleY = windowHeight / originH;
+
+  noiseGraphics = createGraphics(windowWidth, windowHeight);
+  noiseGraphics.colorMode(HSB, 360, 100, 100, 255);
+  noiseGraphics.background(25, 80, 30);
+  noiseGraphics.strokeCap(SQUARE);
+  drawNoiseLines();
+  applyPaperTexture(1);
+  applyPaperTexture(0);
 }
 
 
@@ -980,20 +996,3 @@ function applyPaperTexture(textureType) {
   noiseGraphics.colorMode(HSB, 360, 100, 100, 255);
 }
 
-// function windowResized() {
-//   resizeCanvas(windowWidth, windowHeight);
-//   createButtons(); // Recalculate button positions
-// }
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-  createButtons(); 
-
-  noiseGraphics = createGraphics(windowWidth, windowHeight);
-  noiseGraphics.colorMode(HSB, 360, 100, 100, 255);
-  noiseGraphics.background(25, 80, 30);
-  noiseGraphics.strokeCap(SQUARE);
-  drawNoiseLines();
-  applyPaperTexture(1);
-  applyPaperTexture(0);
-}
