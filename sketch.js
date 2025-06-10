@@ -3,10 +3,23 @@ let rez2;
 let gap;
 let length;
 let startVary;
-let startColor; 
+// let startColor; 
 let noiseGraphics; // Perlin noise part 
 
-let currentExpression = 'level 1';
+// Merge lake and land L2-L4
+let btnWidth = 243.87;
+let btnHeight = 99.87;
+let btnRadius = 49.94;
+let activeLevel = 0;
+let originW = 1811;
+let originH = 1280;
+let scaleX = 1;
+let scaleY = 1;
+let pg;
+let pg2;
+let groups = [];
+
+// let currentExpression = 'level 1'; Because the lake land code already has let activeLevel = 0; to indicate the current level, so remove this first
 let buttons = [];
 
 function createButtons() {
@@ -16,16 +29,54 @@ function createButtons() {
   let y = 50;
   let spacing = 150;
 
-  //Define Buttons
-  buttons.push(new Button("Level 1", width / 2 - spacing, y, () => currentExpression = 'level 1'));
-  buttons.push(new Button("Level 2", width / 2 - spacing / 3, y, () => currentExpression = 'level 2'));
-  buttons.push(new Button("Level 3", width / 2 + spacing / 3, y, () => currentExpression = 'level 3'));
-  buttons.push(new Button("Level 4", width / 2 + spacing, y, () => currentExpression = 'level 4'));
+//   //Define Buttons
+//   buttons.push(new Button("Level 1", width / 2 - spacing, y, () => currentExpression = 'level 1'));
+//   buttons.push(new Button("Level 2", width / 2 - spacing / 3, y, () => currentExpression = 'level 2'));
+//   buttons.push(new Button("Level 3", width / 2 + spacing / 3, y, () => currentExpression = 'level 3'));
+//   buttons.push(new Button("Level 4", width / 2 + spacing, y, () => currentExpression = 'level 4'));
+// }
+
+  //Define Buttons - changed from my group member code to let lake and land work together
+  buttons.push(new Button("Level 1", width / 2 - spacing, y, () => {
+    activeLevel = 1;
+    drawPG2();
+  }));
+  buttons.push(new Button("Level 2", width / 2 - spacing / 3, y, () => {
+    activeLevel = 2;
+    drawPG2();
+  }));
+  buttons.push(new Button("Level 3", width / 2 + spacing / 3, y, () => {
+    activeLevel = 3;
+    drawPG2();
+  }));
+  buttons.push(new Button("Level 4", width / 2 + spacing, y, () => {
+    activeLevel = 4;
+    drawPG2();
+  }));
 }
+
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  textAlign(CENTER, CENTER);
+
+  // Refer to https://p5js.org/reference/p5/createGraphics/
+  // level1 pg
+  pg = createGraphics(originW, originH);
+  pg.clear();
+
+  // Refer to https://p5js.org/reference/p5/createGraphics/
+  // level > 1 pg
+  pg2 = createGraphics(originW, originH);
+  pg2.clear();
+
+  textAlign(CENTER, CENTER); // text alignment center
+  textSize(15); // text size
+  noStroke();
+
+  createButtons(); //This line belongs to my group member
+
+  // initial level1 pg
+  drawPG1();
 
   noiseGraphics = createGraphics(windowWidth, windowHeight);
   noiseGraphics.colorMode(HSB, 360, 100, 100, 255);
@@ -41,7 +92,7 @@ function setup() {
   applyPaperTexture(1);
   applyPaperTexture(0);
 
-  createButtons(); //This line belongs to my group member
+  windowResized();
 }
 
 // function setup() {
@@ -160,21 +211,135 @@ function setup() {
 //   colorMode(HSB, 360, 100, 100, 255);
 // }   // Perlin noise part ends
 
+// This part was previous draw code:
+// function draw() {
+//   image(noiseGraphics, 0, 0); 
+
+//   // The below lines belong to my group member
+//   drawWave();
+//   drawLayerBottom();
+//   drawSeaSunlight();
+//   drawBubbleland();
+//   drawLandCircles();
+//   drawRightCircles();
+
+//   drawScreamCharacter(currentExpression); 
+//   drawButtons(); 
+// }
+// When I introduced the pg2 layer of Level 2-4 (brush stroke, interactive drawing), the original structure could not be displayed correctly.
+// 1) All content is drawn in real time on the main canvas, without layers, and cannot be controlled to refresh or combine independently. 2) The button state does not control the drawn content, and all layers are always drawn, resulting in performance waste and difficulty in implementing Level switching. 3) noiseGraphics is not scaled, and will be misaligned when it is inconsistent with the canvas size.
+// So it was changed to the following:
+
 
 function draw() {
-  image(noiseGraphics, 0, 0); 
+  background(255);
+  noStroke();
+  image(noiseGraphics, 0, 0, width, height); // Originally the noiseGraphics layer was drawn using its original width and height. However, when merged with other elements, the dimensions of the noiseGraphics layer differed from the main canvas, causing size mismatches or incorrect display. To resolve this issue, the noiseGraphics layer is explicitly scaled to match the width and height of the main canvas, ensuring consistency across the final output
 
-  // The below lines belong to my group member
+  // push()
+  // // canvas scale
+  // scale(scaleX, scaleY);
+
+  // // Draw different layer contents according to the current button state
+  // if (activeLevel <= 1) {
+  //   image(pg, 0, 0);
+  // } else if (activeLevel > 1) {
+  //   image(pg2, 0, 0);
+  // }
+  // pop();
+  // Lakes and landmasses could not be resized, so based on Chatgpt's troubleshooting advice I changed the code to the following
+
+  // Just drag the off-screen canvas to the target width and height in equal proportions.
+  const targetW = originW * scaleX;   // scaleX = width / originW
+  const targetH = originH * scaleY;   // scaleY = height / originH
+  const layer   = (activeLevel <= 1) ? pg : pg2;
+  image(layer, 0, 0, targetW, targetH);
+
+  if (activeLevel > 0) {
+  let levelTexts = ["", "level 1", "level 2", "level 3", "level 4"];
+  // Render the character
+  drawScreamCharacter(levelTexts[activeLevel]);
+  }
+  drawButtons(); 
+}
+
+// Below part added for lake and land
+function drawPG1() {
   drawWave();
   drawLayerBottom();
   drawSeaSunlight();
   drawBubbleland();
   drawLandCircles();
   drawRightCircles();
-
-  drawScreamCharacter(currentExpression); 
-  drawButtons(); 
 }
+function drawPG2() {
+  pg2.clear();
+  drawWave2();
+
+  // Density corresponding to different levels of lake and land
+  // The smaller and denser the numbers are, the more likely they are to get stuck.
+  let spaces = [180, 120, 70]
+  groups = []
+
+  // Traverse the pixels of level1, use the pixels that meet the conditions as the center point of the group, and create a group object
+  for (let x = 0; x < pg.width; x += spaces[activeLevel - 2]) {
+    for (let y = 300; y < pg.height; y += spaces[activeLevel - 2]) {
+      // Get the color value of the current pixel
+      let c = pg.get(x, y);
+      // Check the color to exclude the background color
+      if (alpha(c) > 0 && red(c) != 21 && green(c) != 28 && blue(c) != 47) {
+        groups.push(new Group(x, y, c))
+      }
+    }
+  }
+
+  // Traverse the groups and call the show method to display the group
+  for (let i = 0; i < groups.length; i++) {
+    groups[i].show()
+  }
+}
+
+// This part of the code draws buttons of different colors depending on the currently activated button state. Use fill() to set the fill color, noStroke() to remove the border, rect() to draw a rounded rectangle, and text() to display the button label.
+// Reference: p5.js official documentation on fill(), noStroke(), rect(), and text().
+function drawButtons() {
+  let scaleX = windowWidth / originW;
+  let scaleY = windowHeight / originH;
+
+  for (let btn of buttons) {
+    let bx = btn.x * scaleX;
+    let by = btn.y * scaleY;
+    let bw = btnWidth * scaleX;
+    let bh = btnHeight * scaleY;
+    let br = btnRadius * scaleX;
+
+    // Refer to: https://p5js.org/examples/input-rollover.html
+    // Highlight the active button after click
+    fill(btn.level === activeLevel ? color(209, 99, 0) : color(248, 208, 19));
+    noStroke();
+    rect(bx, by, bw, bh, br);
+
+    fill(0);
+    text(btn.label, bx + bw / 2, by + bh / 2);
+  }
+}
+
+// This code implements the function of updating activeLevel when the mouse clicks the button
+function mousePressed() {
+  for (let b of buttons) {
+    if (b.clicked(mouseX, mouseY)) {
+      b.action();
+    }
+  }
+}
+
+// This part of the code adjusts the canvas size and scale when the window is resized. Use resizeCanvas() to adjust the canvas size, and calculate scaleX and scaleY based on the new window size and original size.
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  createButtons(); //This line belongs to my group member
+  scaleX = width / originW;
+  scaleY = height / originH;
+}
+
 
 
 // function draw() {
@@ -195,100 +360,187 @@ function draw() {
 //   drawButtons();
 // }
 
-// Level 1
+// Lake and land part
 function drawWave() {
-  noStroke();
-  let scaleX = windowWidth / 1811;
-  let scaleY = windowHeight / 1280;
+  pg.noStroke();
 
-  fill(21, 28, 46);
-  beginShape();
-  vertex(1351.35 * scaleX, 388.26 * scaleY);
-  bezierVertex((1351.35 - 286.45) * scaleX, (388.26 + 127.97) * scaleY, (1351.35 - 501.68) * scaleX, (388.26 + 54.74) * scaleY, (1351.35 - 501.68) * scaleX, (388.26 + 54.74) * scaleY);
-  bezierVertex(320.13 * scaleX, 251 * scaleY, 0 * scaleX, 625.71 * scaleY, 0 * scaleX, 625.71 * scaleY);
-  vertex(0 * scaleX, 1280 * scaleY);
-  vertex(1811 * scaleX, 1280 * scaleY);
-  vertex(1811 * scaleX, 429.84 * scaleY);
-  bezierVertex((1811 - 114.81) * scaleX, (429.84 - 206.71) * scaleY, (1811 - 459.65) * scaleX, (429.84 - 41.58) * scaleY, (1811 - 459.65) * scaleX, (429.84 - 41.58) * scaleY);
-  endShape(CLOSE);
+  pg.fill(21, 28, 47);
+  pg.beginShape();
+  pg.vertex(1351.35, 388.26);
+  pg.bezierVertex((1351.35 - 286.45), (388.26 + 127.97), (1351.35 - 501.68), (388.26 + 54.74), (1351.35 - 501.68), (388.26 + 54.74));
+  pg.bezierVertex(320.13, 251, 0, 625.71, 0, 625.71);
+  pg.vertex(0, 1280);
+  pg.vertex(1811, 1280);
+  pg.vertex(1811, 429.84);
+  pg.bezierVertex((1811 - 114.81), (429.84 - 206.71), (1811 - 459.65), (429.84 - 41.58), (1811 - 459.65), (429.84 - 41.58));
+  pg.endShape(CLOSE);
+}
+
+function drawWave2() {
+  pg2.noStroke();
+
+  pg2.fill(21, 28, 47);
+  pg2.beginShape();
+  pg2.vertex(1351.35, 388.26);
+  pg2.bezierVertex((1351.35 - 286.45), (388.26 + 127.97), (1351.35 - 501.68), (388.26 + 54.74), (1351.35 - 501.68), (388.26 + 54.74));
+  pg2.bezierVertex(320.13, 251, 0, 625.71, 0, 625.71);
+  pg2.vertex(0, 1280);
+  pg2.vertex(1811, 1280);
+  pg2.vertex(1811, 429.84);
+  pg2.bezierVertex((1811 - 114.81), (429.84 - 206.71), (1811 - 459.65), (429.84 - 41.58), (1811 - 459.65), (429.84 - 41.58));
+  pg2.endShape(CLOSE);
 }
 
 function drawLayerBottom() {
-  noStroke();
-  let sX = windowWidth / 1811;
-  let sY = windowHeight / 1280;
+  pg.noStroke();
 
-  fill(119, 165, 199); ellipse(556.43 * sX, 518.48 * sY, 363.26 * 2 * sX, 110.27 * 2 * sY);
-  fill(100, 142, 184); ellipse(601.58 * sX, 533.79 * sY, 408.41 * 2 * sX, 113.2 * 2 * sY);
-  fill(54, 101, 129); ellipse(625.51 * sX, 552.45 * sY, 398.67 * 2 * sX, 100.98 * 2 * sY);
-  fill(23, 50, 79); ellipse(1523.89 * sX, 503.61 * sY, 241.43 * 2 * sX, 145.46 * 2 * sY);
-  fill(125, 155, 181); ellipse(1446.04 * sX, 529.41 * sY, 241.43 * 2 * sX, 145.46 * 2 * sY);
-  fill(89, 138, 170); ellipse(1348.32 * sX, 566.53 * sY, 241.43 * 2 * sX, 145.46 * 2 * sY);
-  fill(13, 52, 109); ellipse(1241.81 * sX, 602.29 * sY, 385.94 * 2 * sX, 145.46 * 2 * sY);
-  fill(61, 103, 125); ellipse(1230.88 * sX, 664.21 * sY, 385.94 * 2 * sX, 145.46 * 2 * sY);
+  pg.fill(119, 165, 199); pg.ellipse(556.43, 518.48, 363.26 * 2, 110.27 * 2);
+  pg.fill(100, 142, 184); pg.ellipse(601.58, 533.79, 408.41 * 2, 113.2 * 2);
+  pg.fill(54, 101, 129); pg.ellipse(625.51, 552.45, 398.67 * 2, 100.98 * 2);
+  pg.fill(23, 50, 79); pg.ellipse(1523.89, 503.61, 241.43 * 2, 145.46 * 2);
+  pg.fill(125, 155, 181); pg.ellipse(1446.04, 529.41, 241.43 * 2, 145.46 * 2);
+  pg.fill(89, 138, 170); pg.ellipse(1348.32, 566.53, 241.43 * 2, 145.46 * 2);
+  pg.fill(13, 52, 109); pg.ellipse(1241.81, 602.29, 385.94 * 2, 145.46 * 2);
+  pg.fill(61, 103, 125); pg.ellipse(1230.88, 664.21, 385.94 * 2, 145.46 * 2);
 }
 
 function drawSeaSunlight() {
-  noStroke();
-  let sX = windowWidth / 1811;
-  let sY = windowHeight / 1280;
+  pg.noStroke();
 
-  fill(25, 54, 70); ellipse(1228.69 * sX, 1062.82 * sY, 578.67 * 2 * sX, 210.8 * 2 * sY);
-  fill(15, 22, 40); ellipse(1185.14 * sX, 944.66 * sY, 624.77 * 2 * sX, 228.39 * 2 * sY);
-  fill(26, 73, 101); ellipse(1144.41 * sX, 867.08 * sY, 657.53 * 2 * sX, 228.39 * 2 * sY);
-  fill(33, 43, 55); ellipse(1080.95 * sX, 776.19 * sY, 657.53 * 2 * sX, 228.39 * 2 * sY);
-  fill(61, 103, 125); ellipse(1054.57 * sX, 716.27 * sY, 657.53 * 2 * sX, 228.39 * 2 * sY);
-  fill(21, 28, 46); ellipse(1024.18 * sX, 682.21 * sY, 657.53 * 2 * sX, 205.94 * 2 * sY);
-  fill(25, 54, 70); ellipse(1018.69 * sX, 647.26 * sY, 693.42 * 2 * sX, 153.96 * 2 * sY);
-  fill(89, 138, 170); ellipse(829.66 * sX, 618.21 * sY, 515.51 * 2 * sX, 129.55 * 2 * sY);
-  fill(26, 35, 50); ellipse(751.17 * sX, 609.82 * sY, 470.9 * 2 * sX, 111.52 * 2 * sY);
-  fill(225, 190, 28); ellipse(724.94 * sX, 587.76 * sY, 415.84 * 2 * sX, 85.94 * 2 * sY);
-  fill(195, 83, 20); ellipse(725.62 * sX, 568.34 * sY, 366.39 * 2 * sX, 49.86 * 2 * sY);
-  fill(248, 200, 16); ellipse(722.04 * sX, 548.85 * sY, 279.39 * 2 * sX, 21.48 * 2 * sY);
-  fill(236, 224, 166); ellipse(734.9 * sX, 538.38 * sY, 214.65 * 2 * sX, 3.27 * 2 * sY);
+  pg.fill(25, 54, 70); pg.ellipse(1228.69, 1062.82, 578.67 * 2, 210.8 * 2);
+  pg.fill(15, 22, 40); pg.ellipse(1185.14, 944.66, 624.77 * 2, 228.39 * 2);
+  pg.fill(26, 73, 101); pg.ellipse(1144.41, 867.08, 657.53 * 2, 228.39 * 2);
+  pg.fill(33, 43, 55); pg.ellipse(1080.95, 776.19, 657.53 * 2, 228.39 * 2);
+  pg.fill(61, 103, 125); pg.ellipse(1054.57, 716.27, 657.53 * 2, 228.39 * 2);
+  pg.fill(21, 28, 46); pg.ellipse(1024.18, 682.21, 657.53 * 2, 205.94 * 2);
+  pg.fill(25, 54, 70); pg.ellipse(1018.69, 647.26, 693.42 * 2, 153.96 * 2);
+  pg.fill(89, 138, 170); pg.ellipse(829.66, 618.21, 515.51 * 2, 129.55 * 2);
+  pg.fill(26, 35, 50); pg.ellipse(751.17, 609.82, 470.9 * 2, 111.52 * 2);
+  pg.fill(225, 190, 28); pg.ellipse(724.94, 587.76, 415.84 * 2, 85.94 * 2);
+  pg.fill(195, 83, 20); pg.ellipse(725.62, 568.34, 366.39 * 2, 49.86 * 2);
+  pg.fill(248, 200, 16); pg.ellipse(722.04, 548.85, 279.39 * 2, 21.48 * 2);
+  pg.fill(236, 224, 166); pg.ellipse(734.9, 538.38, 214.65 * 2, 3.27 * 2);
 }
 
 function drawBubbleland() {
-  noStroke();
-  let sX = windowWidth / 1811;
-  let sY = windowHeight / 1280;
+  pg.noStroke();
 
-  fill(148, 129, 53); circle(1775 * sX, 721 * sY, 90 * sX);
-  fill(39, 69, 59); circle(1775 * sX, 715 * sY, 50 * sX);
+  pg.fill(148, 129, 53); pg.circle(1775, 721, 90);
+  pg.fill(39, 69, 59); pg.circle(1775, 715, 50);
 }
 
 function drawLandCircles() {
-  noStroke();
-  let sX = windowWidth / 1811;
-  let sY = windowHeight / 1280;
+  pg.noStroke();
   let yOffset = 300;
 
-  fill(105, 133, 95); circle(1610.05 * sX, (769.67 + yOffset) * sY, 399.48 * 2 * sX);
-  fill(183, 169, 130); circle(1613.58 * sX, (782.01 + yOffset) * sY, 339.22 * 2 * sX);
-  fill(102, 125, 119); circle(1640.33 * sX, (799.11 + yOffset) * sY, 323.67 * 2 * sX);
-  fill(205, 185, 148); circle(1700.99 * sX, (858.13 + yOffset) * sY, 355.6 * 2 * sX);
-  fill(193, 165, 58); circle(1821.48 * sX, (864.71 + yOffset) * sY, 355.6 * 2 * sX);
-  fill(218, 179, 39); circle(1878.53 * sX, (849.43 + yOffset) * sY, 340.32 * 2 * sX);
-  fill(37, 56, 52); circle(1964 * sX, (790.71 + yOffset) * sY, 340.32 * 2 * sX);
-  fill(143, 109, 63); circle(1984.93 * sX, (793.4 + yOffset) * sY, 319.39 * 2 * sX);
-  fill(39, 69, 59); circle(2009.53 * sX, (763.96 + yOffset) * sY, 308.54 * 2 * sX);
+  pg.fill(105, 133, 95); pg.circle(1610.05, (769.67 + yOffset), 399.48 * 2);
+  pg.fill(183, 169, 130); pg.circle(1613.58, (782.01 + yOffset), 339.22 * 2);
+  pg.fill(102, 125, 119); pg.circle(1640.33, (799.11 + yOffset), 323.67 * 2);
+  pg.fill(205, 185, 148); pg.circle(1700.99, (858.13 + yOffset), 355.6 * 2);
+  pg.fill(193, 165, 58); pg.circle(1821.48, (864.71 + yOffset), 355.6 * 2);
+  pg.fill(218, 179, 39); pg.circle(1878.53, (849.43 + yOffset), 340.32 * 2);
+  pg.fill(37, 56, 52); pg.circle(1964, (790.71 + yOffset), 340.32 * 2);
+  pg.fill(143, 109, 63); pg.circle(1984.93, (793.4 + yOffset), 319.39 * 2);
+  pg.fill(39, 69, 59); pg.circle(2009.53, (763.96 + yOffset), 308.54 * 2);
 }
 
 function drawRightCircles() {
-  noStroke();
-  let sX = windowWidth / 1811;
-  let sY = windowHeight / 1280;
+  pg.noStroke();
 
-  fill(74, 100, 113); circle(1605.94 * sX, 510.69 * sY, 192.9 * 2 * sX);
-  fill(34, 53, 109); circle(1551.19 * sX, 510.52 * sY, 168.45 * 2 * sX);
-  fill(98, 125, 116); circle(1529.84 * sX, 518.35 * sY, 151.66 * 2 * sX);
-  fill(40, 61, 116); circle(1504.31 * sX, 529.92 * sY, 154.27 * 2 * sX);
-  fill(106, 134, 156); circle(1491 * sX, 536.01 * sY, 140.96 * 2 * sX);
-  fill(175, 150, 119); circle(1450.5 * sX, 542.76 * sY, 94.6 * 2 * sX);
-  fill(175, 115, 115); circle(1425.62 * sX, 555.33 * sY, 82.03 * 2 * sX);
-  fill(86, 91, 111); circle(1399.86 * sX, 568.86 * sY, 74.85 * 2 * sX);
+  pg.fill(74, 100, 113); pg.circle(1605.94, 510.69, 192.9 * 2);
+  pg.fill(34, 53, 109); pg.circle(1551.19, 510.52, 168.45 * 2);
+  pg.fill(98, 125, 116); pg.circle(1529.84, 518.35, 151.66 * 2);
+  pg.fill(40, 61, 116); pg.circle(1504.31, 529.92, 154.27 * 2);
+  pg.fill(106, 134, 156); pg.circle(1491, 536.01, 140.96 * 2);
+  pg.fill(175, 150, 119); pg.circle(1450.5, 542.76, 94.6 * 2);
+  pg.fill(175, 115, 115); pg.circle(1425.62, 555.33, 82.03 * 2);
+  pg.fill(86, 91, 111); pg.circle(1399.86, 568.86, 74.85 * 2);
 }
 
+// Define a Group class to represent a group of shapes
+class Group {
+  constructor(x, y, c) {
+    // Coordinates of the center point
+    this.center = createVector(x, y)
+    // Radius
+    this.groupRad = random(120, 125)
+    // Density of the shapes
+    this.density = 0.002
+    // Angle, randomly select one of 8 directions
+    this.angle = floor(random(8)) * PI / 4
+    // Array to store all shapes within the group
+    this.shapes = []
+    // Color of the shapes
+    this.c = c;
+    // Call the prepare method to prepare the shapes
+    this.prepare()
+  }
+
+  // Prepare the shapes within the group
+  prepare() {
+    // Calculate the number of shapes based on the group's radius and density
+    let numShapes = sq(this.groupRad) * PI * this.density
+    // Loop to create the specified number of shapes
+    for (let i = 0; i < numShapes; i++) {
+      // Calculate the distance of the shape from the center point
+      let distCenter = this.groupRad * sqrt(random())
+      // Randomly generate a polar coordinate angle
+      let anglePolar = random(TAU)
+      // Calculate the position vector of the shape
+      let brushPos = createVector(this.center.x + distCenter * cos(anglePolar), this.center.y + distCenter * sin(anglePolar))
+      // Add the newly created BrushStroke instance to the shapes array
+      this.shapes.push(new BrushStroke(brushPos, this.c, this.angle))
+    }
+  }
+
+  // Display all shapes within the group
+  show() {
+    for (let shape of this.shapes) {
+      shape.show()
+    }
+  }
+}
+
+// Define a BrushStroke class to represent a single shape stroke
+class BrushStroke {
+  constructor(pos, col, baseAngle) {
+    // Position of the shape
+    this.pos = pos
+    // Color of the shape
+    this.color = col
+    // Base angle of the shape
+    this.ang = baseAngle
+  }
+
+  show() {
+    // Randomly generate the width of the shape
+    let shapeWidth = random(20, 50)
+    // Randomly generate the height of the shape
+    let shapeHeight = random(1, 3)
+    // Array to store the vertices of the shape
+    let vertices = []
+    // Loop to generate the vertices of the shape
+    for (let theta = 0; theta < TAU; theta += TAU / 45) {
+      vertices.push(createVector(shapeWidth * cos(theta) + 10 * random(-1, 1), shapeHeight * sin(theta)))
+    }
+    pg2.push()
+    pg2.translate(this.pos.x, this.pos.y)
+    pg2.rotate(this.ang)
+    pg2.fill(this.color)
+    pg2.beginShape()
+    for (let vertice of vertices) {
+      pg2.curveVertex(vertice.x, vertice.y)
+    }
+    pg2.curveVertex(vertices[0].x, vertices[0].y)
+    pg2.curveVertex(vertices[1].x, vertices[1].y)
+    pg2.curveVertex(vertices[2].x, vertices[2].y)
+    pg2.endShape()
+    pg2.pop()
+  }
+}
+
+
+// Character
 function drawScreamCharacter(expression) {
   push();
   translate(width / 3, height / 3);
