@@ -281,7 +281,7 @@ function drawPG2() {
 
   // Density corresponding to different levels of lake and land
   // The smaller and denser the numbers are, the more likely they are to get stuck.
-  let spaces = [180, 120, 80]
+  let spaces = [180, 140, 100]
   groups = []
 
   // Traverse the pixels of level1, use the pixels that meet the conditions as the center point of the group, and create a group object
