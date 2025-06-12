@@ -1,4 +1,5 @@
-let rez1;
+// Define Variables
+let rez1; 
 let rez2;
 let gap;
 let length;
@@ -24,13 +25,13 @@ let buttons = [];
 
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(windowWidth, windowHeight); // Canvas fit window size
 
   scaleX = windowWidth / originW;
   scaleY = windowHeight / originH;
   
   // Refer to https://p5js.org/reference/p5/createGraphics/
-  // level1 pg
+  // level 1 pg
   pg = createGraphics(originW, originH);
   pg.clear();
 
@@ -45,7 +46,7 @@ function setup() {
 
   createButtons(); //This line belongs to my group member
 
-  // initial level1 pg
+  // initial level 1 pg
   drawPG1();
 
   noiseGraphics = createGraphics(windowWidth, windowHeight);
@@ -233,18 +234,14 @@ function draw() {
   drawButtons(); 
 }
 
-function createButtons() {
+// Start of button drawing 
+function createButtons() { 
   buttons = [];
   // Change original height - 55 from my group member to 50
   let y = 50;
   let spacing = 150;
-//   //Define Buttons
-//   buttons.push(new Button("Level 1", width / 2 - spacing, y, () => currentExpression = 'level 1'));
-//   buttons.push(new Button("Level 2", width / 2 - spacing / 3, y, () => currentExpression = 'level 2'));
-//   buttons.push(new Button("Level 3", width / 2 + spacing / 3, y, () => currentExpression = 'level 3'));
-//   buttons.push(new Button("Level 4", width / 2 + spacing, y, () => currentExpression = 'level 4'));
-// }
-  //Define Buttons - changed from my group member code to let lake and land work together
+
+  //Define Buttons
   buttons.push(new Button("Level 1", width / 2 - spacing, y, () => {
     activeLevel = 1;
     drawPG2();
@@ -285,7 +282,9 @@ function drawButtons() {
     fill(0);
     text(btn.label, bx + bw / 2, by + bh / 2);
   }
-}
+} // End of button drawing *********************************
+// Scroll to bottom of the code to see button class.
+
 
 // Below part added for lake and land
 function drawPG1() {
@@ -297,11 +296,9 @@ function drawPG1() {
   drawRightCircles();
 }
 
-
 function drawPG2() {
   pg2.clear();
   drawWave2();
-
   // Density corresponding to different levels of lake and land
   // The smaller and denser the numbers are, the more likely they are to get stuck.
   let spaces = [180, 140, 100]
@@ -325,7 +322,7 @@ function drawPG2() {
   }
 }
 
-// Lake and land part
+// Start of Lake and Land drawing
 function drawWave() {
   pg.noStroke();
 
@@ -502,11 +499,11 @@ class BrushStroke {
     pg2.endShape()
     pg2.pop()
   }
-}
+}  // End of Lake and Land drawing *********************************
 
 
 /* Character
-I first traced the reference image in Adobe Illustrator and exported it as an SVG vector. 
+To make custom shapes, I traced the reference image in Adobe Illustrator and exported it as an SVG vector. 
 I then opened the SVG file in VS Code to access the path data, which I converted into p5.js code 
 using ChatGPT and the svg2p5.com converter. 
 
@@ -515,18 +512,18 @@ https://chatgpt.com/share/68441ed9-aadc-800a-973f-e1387b4b74cc
 https://chatgpt.com/share/68441f02-1634-800a-8e9f-7963758f5023
 https://chatgpt.com/share/68441f26-1460-800a-926a-effebb2238c6 */
 
-function drawScreamCharacter(expression) { // Start of character drawing
-  push(); // Save current drawing style and transform state, keeps shape in place
-  translate(width / 3, height / 3); // Shrink character to fit screen
-  scale(0.8); // Scale down the character for better visibility
+function drawScreamCharacter(expression) {   // Start of character drawing
+  push();   // Save current drawing style and transform state, keeps shape in place
+  translate(width / 3, height / 3);   // Shrink character to fit screen
+  scale(0.8);   // Scale down the character for better visibility
 
   //Body
   push(); // Save current drawing style and transform state, keeps shape in place
-  beginShape();
+  beginShape(); // Start of custom shape
   fill('#4a4b4c');
   // Starting point
-  vertex(219.56, 283.215);
-  bezierVertex(161.235, 285.11, 142.937, 326.477, 142.937, 326.477);
+  vertex(219.56, 283.215); // Add vertices to specify the corner points of a custom shape. Tecnique ref: https://p5js.org/reference/p5/vertex/ 
+  bezierVertex(161.235, 285.11, 142.937, 326.477, 142.937, 326.477); // Curves are drawn by adding curved segments to custom shapes. Technique ref: https://p5js.org/reference/p5/bezierVertex/ 
   bezierVertex(142.937, 326.477, 131.807, 398.212, 131.807, 398.212);
   bezierVertex(131.807, 398.212, 153.263, 531.879, 123.641, 603.675);
   bezierVertex(86.829, 692.899, 75.15, 841.89, 75.15, 841.89);
@@ -536,7 +533,7 @@ function drawScreamCharacter(expression) { // Start of character drawing
   vertex(431.177, 356.817);
   bezierVertex(440.094, 305.459, 396.782, 306.213, 396.782, 306.213);
   vertex(219.56, 283.215);
-  endShape(CLOSE);
+  endShape(CLOSE); // End of custom shape
   pop(); // Restore the previous drawing state
 
   //Left Arm
@@ -544,16 +541,16 @@ function drawScreamCharacter(expression) { // Start of character drawing
   fill('#231f20');
   stroke('#231f20');
   strokeWeight(6);
-  beginShape();
+  beginShape(); // Start of custom shape
   // Starting point
-  vertex(211.545, 313.387);
-  bezierVertex(194.578, 377.035, 161.081, 408.672, 161.081, 408.672);
+  vertex(211.545, 313.387); // Add vertices
+  bezierVertex(194.578, 377.035, 161.081, 408.672, 161.081, 408.672); // Add a curved segment
   bezierVertex(110.591, 504.957, 94.983, 572.776, 111.983, 626.02);
   bezierVertex(129.061, 679.87, 170.607, 661.739, 185.081, 635.424);
   bezierVertex(199.555, 609.109, 227.349, 565.018, 253.587, 470.564);
   bezierVertex(279.825, 376.11, 278.494, 329.459, 278.494, 329.459);
   bezierVertex(278.494, 329.459, 265.664, 282.703, 235.501, 316.298);
-  endShape(CLOSE);
+  endShape(CLOSE); // Start of custom shape
   pop();
 
   //Right Arm
@@ -563,8 +560,8 @@ function drawScreamCharacter(expression) { // Start of character drawing
   strokeWeight(6);
   beginShape();
   // Starting point
-  vertex(442.677, 289.429);
-  bezierVertex(454.049, 289.429, 462.203, 300.443, 458.824, 311.301);
+  vertex(442.677, 289.429); // Add vertices
+  bezierVertex(454.049, 289.429, 462.203, 300.443, 458.824, 311.301); // Add a curved segment
   bezierVertex(452.597, 331.308, 445.033, 361.594, 446.453, 387.167);
   bezierVertex(448.808, 429.559, 467.459, 610.129, 405.95, 639.371);
   bezierVertex(405.95, 639.371, 395.692, 645.241, 377.59, 646.093);
@@ -574,7 +571,7 @@ function drawScreamCharacter(expression) { // Start of character drawing
   bezierVertex(398.234, 379.838, 398.043, 378.086, 398.148, 376.329);
   bezierVertex(398.786, 365.618, 402.948, 326.224, 430.018, 295.127);
   bezierVertex(433.196, 291.477, 437.837, 289.429, 442.677, 289.429);
-  endShape(CLOSE);
+  endShape(CLOSE); // End of custom shape
   pop();
 
   //Right Hand
@@ -710,9 +707,12 @@ function drawScreamCharacter(expression) { // Start of character drawing
     endShape();
   }
   else if (expression === 'level 4') {  // 'level 4' button clicked
-    //Mouth XL — with quiver on click
+    /* Mouth XL — with quiver on click
+    Reference technique:
+    https://p5js.org/examples/calculating-values-random/ 
+    Lines jitter randomly with q value to simulate a quivering mouth. */
     beginShape();
-    vertex(364.399 + random(-q, q), 332.493 + random(-q, q));
+    vertex(364.399 + random(-q, q), 332.493 + random(-q, q)); 
     bezierVertex(
       368.739 + random(-q, q), 324.013 + random(-q, q),
       375.142 + random(-q, q), 301.543 + random(-q, q),
@@ -747,8 +747,8 @@ function drawScreamCharacter(expression) { // Start of character drawing
   }
   pop();
 
-  //Right Eye
-  push();
+  //Right Eye 
+  push(); 
   fill("#ffffff")
   noStroke()
   beginShape();
@@ -869,9 +869,11 @@ function drawScreamCharacter(expression) { // Start of character drawing
   endShape();
   pop();
 
-  pop(); // End of character drawing
+  pop(); // End of character drawing *********************************
 }
 
+
+// Start of Sky Drawing
 function drawNoiseLines() {
   for (let x = -20; x < width + 20; x += gap) {
     for (let y = -20; y < height + 20; y += gap) {
@@ -931,7 +933,7 @@ function applyPaperTexture(textureType) {
     noiseGraphics.pop();
   }
   noiseGraphics.colorMode(HSB, 360, 100, 100, 255);
-}
+} // End of sky drawing *********************************
 
 
 // Button class
