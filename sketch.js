@@ -41,8 +41,7 @@ function setup() {
   textSize(15); // text size
   noStroke();
 
-  createButtons(); //This line belongs to my group member
-
+  createButtons(); 
   // initial level 1 pg
   drawPG1();
 
@@ -86,15 +85,14 @@ function draw() {
 
   drawScreamCharacter(levelTexts[activeLevel]);   // draw character
   }
-  drawButtons(); // draw Buttons
+  drawButtons(); // draw Buttons, see bottom of code
 }
 
 // Start of button drawing 
 function createButtons() { 
   buttons = [];
-  // Change original height - 55 from my group member to 50
-  let y = 50;
-  let spacing = 150;
+  let y = 50; // vertical position of buttons
+  let spacing = 150; // horizontal spacing between buttons
 
   //Define Buttons
   buttons.push(new Button("Level 1", width / 2 - spacing, y, () => {
@@ -114,32 +112,8 @@ function createButtons() {
     drawPG2();
   }));
 }
-
-
-// This part of the code draws buttons of different colors depending on the currently activated button state. Use fill() to set the fill color, noStroke() to remove the border, rect() to draw a rounded rectangle, and text() to display the button label.
-// Reference: p5.js official documentation on fill(), noStroke(), rect(), and text().
-function drawButtons() {
-  let scaleX = windowWidth / originW;
-  let scaleY = windowHeight / originH;
-
-  for (let btn of buttons) {
-    let bx = btn.x * scaleX;
-    let by = btn.y * scaleY;
-    let bw = btnWidth * scaleX;
-    let bh = btnHeight * scaleY;
-    let br = btnRadius * scaleX;
-
-    // Refer to: https://p5js.org/examples/input-rollover.html
-    // Highlight the active button after click
-    fill(btn.level === activeLevel ? color(209, 99, 0) : color(248, 208, 19));
-    noStroke();
-    rect(bx, by, bw, bh, br);
-
-    fill(0);
-    text(btn.label, bx + bw / 2, by + bh / 2);
-  }
-} // End of button drawing *********************************
-// Scroll to bottom of the code to see button class.
+// End of button drawing *********************************
+// Scroll to bottom of the code to see button class. */
 
 
 // Below part added for lake and land
@@ -841,6 +815,7 @@ function mousePressed() { // Button clicked
   }
 }
 
+
 function windowResized() { // Make elements adjust to window size
   resizeCanvas(windowWidth, windowHeight);
   createButtons();  // Recalculate button positions
@@ -855,4 +830,4 @@ function windowResized() { // Make elements adjust to window size
   drawNoiseLines();
   applyPaperTexture(1);
   applyPaperTexture(0);
-}
+} 
