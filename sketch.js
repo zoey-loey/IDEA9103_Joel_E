@@ -1,3 +1,4 @@
+// These globals are declared at top-level so every function can see them
 // Define Variables
 let rez1; 
 let rez2;
@@ -27,27 +28,33 @@ function setup() {
   scaleX = windowWidth / originW;
   scaleY = windowHeight / originH;
   
-  // Refer to https://p5js.org/reference/p5/createGraphics/
+  // Off-screen buffers (Implementation uses p5.createGraphics: https://p5js.org/reference/#/p5/createGraphics)
+  // pg  – holds the clean, geometric artwork for Level 1 (mainly for lake + land)
+  // pg2 – regenerated on every Level 2-4 click (mainly for lake + land); replaces the geometry, with painterly “brush-stroke” groups
   // level 1 pg
   pg = createGraphics(originW, originH);
   pg.clear();
 
-  // Refer to https://p5js.org/reference/p5/createGraphics/
   // level > 1 pg
   pg2 = createGraphics(originW, originH);
   pg2.clear();
 
+  // Basic typographic settings for button labels & HUD text
   textAlign(CENTER, CENTER); // text alignment center
   textSize(15); // text size
   noStroke();
 
   createButtons(); 
-  // initial level 1 pg
+
+  // Render the static Level 1 artwork into the pg buffer
   drawPG1();
 
+  // Create an off-screen layer for the sky
   noiseGraphics = createGraphics(windowWidth, windowHeight);
   noiseGraphics.colorMode(HSB, 360, 100, 100, 255);
   noiseGraphics.background(25, 80, 30);
+
+  // Tunable flow-field + texture parameters
   rez1 = 0.006;
   rez2 = 0.003;
   gap = 15;
@@ -59,13 +66,10 @@ function setup() {
   applyPaperTexture(1);
   applyPaperTexture(0);
 
+  // Force a first layout pass so everything scales to the current window size before draw() starts looping
   windowResized();
 }
 
-/* When the pg2 layer was added to Levels 2–4 (for brush strokes and interactive drawing), issues arose with the original structure:
-1) All content was drawn directly to the main canvas in real time, making it impossible to manage layers independently.
-2) Button states couldn't control which layers were drawn, leading to unnecessary rendering and making Level switching difficult.
-3) noiseGraphics wasn’t scaled properly, causing alignment issues when its size didn’t match the canvas. */
 
 function draw() {
   background(255);
@@ -75,26 +79,41 @@ function draw() {
   /* The original noiseGraphics layer used its default size, which caused mismatches when combined with other elements. To fix this, 
   it is now explicitly scaled to match the main canvas dimensions, ensuring consistent and proportionate display in the final output. */
 
+  // Lake & Land layer
+  // Level 1 : pg  (vector geometry)
+  // Level 2-4 : pg2 (painterly brush strokes, regenerated on click)
+  // Both buffers were created with p5.createGraphics, keep the original 1811*1280 aspect via scaleX / scaleY
   const targetW = originW * scaleX;   // scaleX = width / originW
   const targetH = originH * scaleY;   // scaleY = height / originH
   const layer   = (activeLevel <= 1) ? pg : pg2;
   image(layer, 0, 0, targetW, targetH);
 
+  // drawScreamCharacter() needs a label like "level 2", so this array
+  // Turns the number 1-4 into that text. Slot 0 is an empty string;
+  // When activeLevel is 0 we return nothing and avoid an error.
   if (activeLevel > 0) {
   let levelTexts = ["", "level 1", "level 2", "level 3", "level 4"];
 
   drawScreamCharacter(levelTexts[activeLevel]);   // draw character
   }
-  drawButtons(); // draw Buttons, see bottom of code
+  drawButtons(); // Draw Buttons, see bottom of code; the button is always rendered last, ensuring it is above all layers
 }
 
 // Start of button drawing 
+/* Reference inspiration
+1. Strut slide editor – creates a `buttons` array with buttons.push(new Button(...)) inside createButtons()
+https://github.com/tusharvikky/Strut/blob/41c6e5359b727d55cdfb5c5f2d5789824e79d7a4/app/bundles/app/strut.slide_components/main.js#L24
+2. xaota/ui pagination component – also builds an array of buttons via buttons.push() before attaching click events
+https://github.com/xaota/ui/blob/4c7bda33feda53b75c24d3e2b7d12ee9aada4b2d/components/pagination.js#L3
+Both links use DOM buttons, not p5.js, but we borrowed the same “array + push” idea. Here each Button is a lightweight p5.js object that
+draws a rectangle on the canvas and stores a callback; every click is processed later in mousePressed(). */
 function createButtons() { 
   buttons = [];
   let y = 50; // vertical position of buttons
   let spacing = 150; // horizontal spacing between buttons
 
-  //Define Buttons
+  // Define Buttons
+  
   buttons.push(new Button("Level 1", width / 2 - spacing, y, () => {
     activeLevel = 1;
     drawPG2();
@@ -112,8 +131,7 @@ function createButtons() {
     drawPG2();
   }));
 }
-// End of button drawing *********************************
-// Scroll to bottom of the code to see button class. */
+// End of button drawing
 
 
 // Below part added for lake and land
@@ -126,12 +144,14 @@ function drawPG1() {
   drawRightCircles();
 }
 
+// Lake & land: Base idea from OpenProcessing #1612706 (Group & BrushStroke classes): https://openprocessing.org/sketch/1612706
 function drawPG2() {
-  pg2.clear();
-  drawWave2();
+  pg2.clear(); // reset the painterly layer each time
+  drawWave2(); // keep the dark lake outline (same as drawWave)
+  // OpenProcessing fixed minDistance=100 ; we map 180/140/100 instead.
   // Density corresponding to different levels of lake and land
   // The smaller and denser the numbers are, the more likely they are to get stuck.
-  let spaces = [180, 140, 100]
+  let spaces = [180, 140, 100] // Level 2/3/4
   groups = []
 
   // Traverse the pixels of level 1, use the pixels that meet the conditions as the center point of the group, and create a group object
@@ -154,6 +174,14 @@ function drawPG2() {
 
 
 // Start of Lake and Land drawing
+  // Path originally drawn in Adobe Illustrator, then exported as <path> data in an SVG file.
+  // The SVG path was converted to p5.js code with the online tool “svg2p5” (https://svg2p5.com) which outputs beginShape() + vertex() + bezierVertex() commands
+  // Manual tweaks after conversion:
+  // 1. Replaced generic canvas calls with pg./pg2. to draw into the levels buffer instead of the main canvas
+  // 2. Unified fill colour to match the artwork palette
+  // 3. Added explicit CLOSE flag at endShape() for a sealed outline
+  // Result: Adobe Illustrator vector -> SVG -> svg2p5 code -> Integration code
+
 function drawWave() {
   pg.noStroke();
 
@@ -251,6 +279,25 @@ function drawRightCircles() {
 }
 
 // Define a Group class to represent a group of shapes
+/* Group & BrushStroke  –  adapted from OpenProcessing sketch #1612706: https://openprocessing.org/sketch/1612706
+HOW THIS VERSION DIFFERS FROM THE ORIGINAL
+1.  Colour source  
+• Original: chose random colours from a fixed palette.  
+• Changes: passes in ‘c’ sampled from pg.get(x,y), so every stroke inherits the exact lake / land colour underneath.
+2.  Placement logic  
+• Original: Group centres are generated by Poisson-Disk sampling.  
+• Changes: Groups are placed on a regular grid over pg; we only create a Group if that pixel belongs to the lake/land 
+(alpha>0 and not background navy).  Grid step comes from spaces[] to give different densities for Level 2-4.
+3.  Drawing surface  
+• Original: strokes are drawn directly on the main canvas.  
+• Ours: strokes are rendered into pg2 (an off-screen buffer) so we can toggle the whole layer with activeLevel.
+4.  Parameter tweaks  
+• shapeWidth 20-50 px  (was 50-200 px) to fit our smaller scale.  
+• shapeHeight 1-3 px   (was 1-6 px) for a finer brush feel.  
+• groupRad random(120,125) and density 0.002 kept the same.
+Aside from these edits, the polar distribution in Group.prepare() and the curved “capsule” outline in BrushStroke.show() follow the original
+algorithm almost line-for-line, preserving its painterly aesthetic.*/
+
 class Group {
   constructor(x, y, c) {
     // Coordinates of the center point
@@ -330,7 +377,7 @@ class BrushStroke {
     pg2.endShape()
     pg2.pop()
   }
-}  // End of Lake and Land drawing *********************************
+}  // End of Lake and Land drawing
 
 
 /* Character
