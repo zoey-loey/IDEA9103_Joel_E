@@ -22,39 +22,6 @@ let groups = [];
 // let currentExpression = 'level 1'; Because the lake land code already has let activeLevel = 0; to indicate the current level, so remove this first
 let buttons = [];
 
-function createButtons() {
-  buttons = [];
-
-  // Change original height - 55 from my group member to 50
-  let y = 50;
-  let spacing = 150;
-
-//   //Define Buttons
-//   buttons.push(new Button("Level 1", width / 2 - spacing, y, () => currentExpression = 'level 1'));
-//   buttons.push(new Button("Level 2", width / 2 - spacing / 3, y, () => currentExpression = 'level 2'));
-//   buttons.push(new Button("Level 3", width / 2 + spacing / 3, y, () => currentExpression = 'level 3'));
-//   buttons.push(new Button("Level 4", width / 2 + spacing, y, () => currentExpression = 'level 4'));
-// }
-
-  //Define Buttons - changed from my group member code to let lake and land work together
-  buttons.push(new Button("Level 1", width / 2 - spacing, y, () => {
-    activeLevel = 1;
-    drawPG2();
-  }));
-  buttons.push(new Button("Level 2", width / 2 - spacing / 3, y, () => {
-    activeLevel = 2;
-    drawPG2();
-  }));
-  buttons.push(new Button("Level 3", width / 2 + spacing / 3, y, () => {
-    activeLevel = 3;
-    drawPG2();
-  }));
-  buttons.push(new Button("Level 4", width / 2 + spacing, y, () => {
-    activeLevel = 4;
-    drawPG2();
-  }));
-}
-
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -266,40 +233,34 @@ function draw() {
   drawButtons(); 
 }
 
-// Below part added for lake and land
-function drawPG1() {
-  drawWave();
-  drawLayerBottom();
-  drawSeaSunlight();
-  drawBubbleland();
-  drawLandCircles();
-  drawRightCircles();
-}
-function drawPG2() {
-  pg2.clear();
-  drawWave2();
-
-  // Density corresponding to different levels of lake and land
-  // The smaller and denser the numbers are, the more likely they are to get stuck.
-  let spaces = [180, 140, 100]
-  groups = []
-
-  // Traverse the pixels of level1, use the pixels that meet the conditions as the center point of the group, and create a group object
-  for (let x = 0; x < pg.width; x += spaces[activeLevel - 2]) {
-    for (let y = 300; y < pg.height; y += spaces[activeLevel - 2]) {
-      // Get the color value of the current pixel
-      let c = pg.get(x, y);
-      // Check the color to exclude the background color
-      if (alpha(c) > 0 && red(c) != 21 && green(c) != 28 && blue(c) != 47) {
-        groups.push(new Group(x, y, c))
-      }
-    }
-  }
-
-  // Traverse the groups and call the show method to display the group
-  for (let i = 0; i < groups.length; i++) {
-    groups[i].show()
-  }
+function createButtons() {
+  buttons = [];
+  // Change original height - 55 from my group member to 50
+  let y = 50;
+  let spacing = 150;
+//   //Define Buttons
+//   buttons.push(new Button("Level 1", width / 2 - spacing, y, () => currentExpression = 'level 1'));
+//   buttons.push(new Button("Level 2", width / 2 - spacing / 3, y, () => currentExpression = 'level 2'));
+//   buttons.push(new Button("Level 3", width / 2 + spacing / 3, y, () => currentExpression = 'level 3'));
+//   buttons.push(new Button("Level 4", width / 2 + spacing, y, () => currentExpression = 'level 4'));
+// }
+  //Define Buttons - changed from my group member code to let lake and land work together
+  buttons.push(new Button("Level 1", width / 2 - spacing, y, () => {
+    activeLevel = 1;
+    drawPG2();
+  }));
+  buttons.push(new Button("Level 2", width / 2 - spacing / 3, y, () => {
+    activeLevel = 2;
+    drawPG2();
+  }));
+  buttons.push(new Button("Level 3", width / 2 + spacing / 3, y, () => {
+    activeLevel = 3;
+    drawPG2();
+  }));
+  buttons.push(new Button("Level 4", width / 2 + spacing, y, () => {
+    activeLevel = 4;
+    drawPG2();
+  }));
 }
 
 // This part of the code draws buttons of different colors depending on the currently activated button state. Use fill() to set the fill color, noStroke() to remove the border, rect() to draw a rounded rectangle, and text() to display the button label.
@@ -326,55 +287,43 @@ function drawButtons() {
   }
 }
 
-// This code implements the function of updating activeLevel when the mouse clicks the button
-function mousePressed() {
-  for (let b of buttons) {
-    if (b.clicked(mouseX, mouseY)) {
-      b.action();
+// Below part added for lake and land
+function drawPG1() {
+  drawWave();
+  drawLayerBottom();
+  drawSeaSunlight();
+  drawBubbleland();
+  drawLandCircles();
+  drawRightCircles();
+}
+
+
+function drawPG2() {
+  pg2.clear();
+  drawWave2();
+
+  // Density corresponding to different levels of lake and land
+  // The smaller and denser the numbers are, the more likely they are to get stuck.
+  let spaces = [180, 140, 100]
+  groups = []
+
+  // Traverse the pixels of level1, use the pixels that meet the conditions as the center point of the group, and create a group object
+  for (let x = 0; x < pg.width; x += spaces[activeLevel - 2]) {
+    for (let y = 300; y < pg.height; y += spaces[activeLevel - 2]) {
+      // Get the color value of the current pixel
+      let c = pg.get(x, y);
+      // Check the color to exclude the background color
+      if (alpha(c) > 0 && red(c) != 21 && green(c) != 28 && blue(c) != 47) {
+        groups.push(new Group(x, y, c))
+      }
     }
   }
+
+  // Traverse the groups and call the show method to display the group
+  for (let i = 0; i < groups.length; i++) {
+    groups[i].show()
+  }
 }
-
-// function windowResized() {
-//   resizeCanvas(windowWidth, windowHeight);
-//   createButtons(); // Recalculate button positions
-// }
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-  createButtons(); 
-  
-  scaleX = windowWidth / originW;
-  scaleY = windowHeight / originH;
-
-  noiseGraphics = createGraphics(windowWidth, windowHeight);
-  noiseGraphics.colorMode(HSB, 360, 100, 100, 255);
-  noiseGraphics.background(25, 80, 30);
-  noiseGraphics.strokeCap(SQUARE);
-  drawNoiseLines();
-  applyPaperTexture(1);
-  applyPaperTexture(0);
-}
-
-
-
-// function draw() {
-  
-
-//   // Draw Background Elements
-//   drawWave();
-//   drawLayerBottom();
-//   drawSeaSunlight();
-//   drawBubbleland();
-//   drawLandCircles();
-//   drawRightCircles();
-
-//   // Draw character
-//   drawScreamCharacter(currentExpression);
-
-//   // Draw buttons
-//   drawButtons();
-// }
 
 // Lake and land part
 function drawWave() {
@@ -557,7 +506,7 @@ class BrushStroke {
 
 
 // Character
-function drawScreamCharacter(expression) {
+function drawScreamCharacter(expression) { // Start of character drawing
   push();
   translate(width / 3, height / 3);
   scale(0.8); // Scale down the character for better visibility
@@ -888,53 +837,6 @@ function drawScreamCharacter(expression) {
   pop(); // End of character drawing
 }
 
-// Button class
-class Button {
-  constructor(label, x, y, action) {
-    this.label = label;
-    this.x = x;
-    this.y = y;
-    this.w = 80;
-    this.h = 30;
-    this.action = action;
-  }
-  isHovered() {
-    return mouseX > this.x && mouseX < this.x + this.w &&
-      mouseY > this.y && mouseY < this.y + this.h;
-  }
-
-  show() {
-    if (this.isHovered()) {
-      fill(209, 99, 0); //Hover Color
-    } else {
-      fill(248, 208, 19); //Default Color
-    }
-    noStroke();
-    rect(this.x, this.y, this.w, this.h, 5);
-    textSize(17);
-    fill(0);
-    text(this.label, this.x + this.w / 2, this.y + this.h / 2);
-  }
-
-  clicked(mx, my) {
-    return mx > this.x && mx < this.x + this.w && my > this.y && my < this.y + this.h;
-  }
-}
-
-function drawButtons() {
-  for (let b of buttons) {
-    b.show();
-  }
-}
-
-function mousePressed() {
-  for (let b of buttons) {
-    if (b.clicked(mouseX, mouseY)) {
-      b.action();
-    }
-  }
-}
-
 function drawNoiseLines() {
   for (let x = -20; x < width + 20; x += gap) {
     for (let y = -20; y < height + 20; y += gap) {
@@ -996,3 +898,66 @@ function applyPaperTexture(textureType) {
   noiseGraphics.colorMode(HSB, 360, 100, 100, 255);
 }
 
+// Button class
+class Button {
+  constructor(label, x, y, action) {
+    this.label = label;
+    this.x = x;
+    this.y = y;
+    this.w = 80;
+    this.h = 30;
+    this.action = action;
+  }
+  isHovered() {
+    return mouseX > this.x && mouseX < this.x + this.w &&
+      mouseY > this.y && mouseY < this.y + this.h;
+  }
+
+  show() {
+    if (this.isHovered()) {
+      fill(209, 99, 0); //Hover Color
+    } else {
+      fill(248, 208, 19); //Default Color
+    }
+    noStroke();
+    rect(this.x, this.y, this.w, this.h, 5);
+    textSize(17);
+    fill(0);
+    text(this.label, this.x + this.w / 2, this.y + this.h / 2);
+  }
+
+  clicked(mx, my) {
+    return mx > this.x && mx < this.x + this.w && my > this.y && my < this.y + this.h;
+  }
+}
+
+function drawButtons() {
+  for (let b of buttons) {
+    b.show();
+  }
+}
+
+// This code implements the function of updating activeLevel when the mouse clicks the button
+function mousePressed() {
+  for (let b of buttons) {
+    if (b.clicked(mouseX, mouseY)) {
+      b.action();
+    }
+  }
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  createButtons(); 
+  
+  scaleX = windowWidth / originW;
+  scaleY = windowHeight / originH;
+
+  noiseGraphics = createGraphics(windowWidth, windowHeight);
+  noiseGraphics.colorMode(HSB, 360, 100, 100, 255);
+  noiseGraphics.background(25, 80, 30);
+  noiseGraphics.strokeCap(SQUARE);
+  drawNoiseLines();
+  applyPaperTexture(1);
+  applyPaperTexture(0);
+}
