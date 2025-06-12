@@ -505,14 +505,23 @@ class BrushStroke {
 }
 
 
-// Character
+/* Character
+I first traced the reference image in Adobe Illustrator and exported it as an SVG vector. 
+I then opened the SVG file in VS Code to access the path data, which I converted into p5.js code 
+using ChatGPT and the svg2p5.com converter. 
+
+ChatGPT Links: 
+https://chatgpt.com/share/68441ed9-aadc-800a-973f-e1387b4b74cc
+https://chatgpt.com/share/68441f02-1634-800a-8e9f-7963758f5023
+https://chatgpt.com/share/68441f26-1460-800a-926a-effebb2238c6 */
+
 function drawScreamCharacter(expression) { // Start of character drawing
-  push();
-  translate(width / 3, height / 3);
+  push(); // Save current drawing style and transform state, keeps shape in place
+  translate(width / 3, height / 3); // Shrink character to fit screen
   scale(0.8); // Scale down the character for better visibility
 
   //Body
-  push();
+  push(); // Save current drawing style and transform state, keeps shape in place
   beginShape();
   fill('#4a4b4c');
   // Starting point
@@ -528,7 +537,7 @@ function drawScreamCharacter(expression) { // Start of character drawing
   bezierVertex(440.094, 305.459, 396.782, 306.213, 396.782, 306.213);
   vertex(219.56, 283.215);
   endShape(CLOSE);
-  pop();
+  pop(); // Restore the previous drawing state
 
   //Left Arm
   push();
@@ -651,11 +660,15 @@ function drawScreamCharacter(expression) { // Start of character drawing
   endShape();
   pop();
 
-  //Interactive Mouth 
+  /* Interactive Mouth 
+  Mouth size change upon each button click */
+  push(); // Save current drawing style and transform state, keeps shape in place
   fill(169, 146, 109)
   stroke(0)
   strokeWeight(6)
-  if (expression === 'level 1') {
+  let q = mousePressed ? 3 : 0; // Jitter amount (quiver strength)
+
+  if (expression === 'level 1') { // 'level 1' button clicked
     //Mouth S
     fill(169, 146, 109)
     stroke(0)
@@ -668,7 +681,7 @@ function drawScreamCharacter(expression) { // Start of character drawing
     bezierVertex(351.509, 307.632, 352.774, 301.245, 354.706, 297.443);
     endShape();
   }
-  else if (expression === 'level 2') {
+  else if (expression === 'level 2') { // 'level 2' button clicked
     //Mouth M
     fill(169, 146, 109)
     stroke(0)
@@ -682,7 +695,7 @@ function drawScreamCharacter(expression) { // Start of character drawing
     bezierVertex(359.965, 323.277, 361.803, 314.181, 364.61199999999997, 308.766);
     endShape();
   }
-  else if (expression === 'level 3') {
+  else if (expression === 'level 3') { // 'level 3' button clicked
     //Mouth L
     fill(169, 146, 109)
     stroke(0)
@@ -696,21 +709,43 @@ function drawScreamCharacter(expression) { // Start of character drawing
     bezierVertex(360.871, 337.94399999999996, 362.85900000000004, 326.55999999999995, 365.897, 319.784);
     endShape();
   }
-  else if (expression === 'level 4') {
-    //Mouth XL
-    fill(169, 146, 109)
-    stroke(0)
-    strokeWeight(6)
+  else if (expression === 'level 4') {  // 'level 4' button clicked
+    //Mouth XL — with quiver on click
     beginShape();
-    vertex(364.399, 332.493);
-    bezierVertex(368.739, 324.013, 375.142, 301.543, 376.357, 292.13);
-    bezierVertex(390.439, 182.973, 264.752, 226.11399999999998, 289.869, 373.671);
-    bezierVertex(292.281, 387.84, 271.93, 437.821, 306.56100000000004, 418.423);
-    bezierVertex(317.439, 412.33, 324.06100000000004, 407.319, 335.264, 384.368);
-    bezierVertex(342.704, 369.126, 342.788, 367.185, 346.478, 362.086);
-    bezierVertex(354.184, 351.43600000000004, 360.157, 340.78200000000004, 364.399, 332.493);
+    vertex(364.399 + random(-q, q), 332.493 + random(-q, q));
+    bezierVertex(
+      368.739 + random(-q, q), 324.013 + random(-q, q),
+      375.142 + random(-q, q), 301.543 + random(-q, q),
+      376.357 + random(-q, q), 292.13 + random(-q, q)
+    );
+    bezierVertex(
+      390.439 + random(-q, q), 182.973 + random(-q, q),
+      264.752 + random(-q, q), 226.114 + random(-q, q),
+      289.869 + random(-q, q), 373.671 + random(-q, q)
+    );
+    bezierVertex(
+      292.281 + random(-q, q), 387.84 + random(-q, q),
+      271.93 + random(-q, q), 437.821 + random(-q, q),
+      306.561 + random(-q, q), 418.423 + random(-q, q)
+    );
+    bezierVertex(
+      317.439 + random(-q, q), 412.33 + random(-q, q),
+      324.061 + random(-q, q), 407.319 + random(-q, q),
+      335.264 + random(-q, q), 384.368 + random(-q, q)
+    );
+    bezierVertex(
+      342.704 + random(-q, q), 369.126 + random(-q, q),
+      342.788 + random(-q, q), 367.185 + random(-q, q),
+      346.478 + random(-q, q), 362.086 + random(-q, q)
+    );
+    bezierVertex(
+      354.184 + random(-q, q), 351.436 + random(-q, q),
+      360.157 + random(-q, q), 340.782 + random(-q, q),
+      364.399 + random(-q, q), 332.493 + random(-q, q)
+    );
     endShape();
   }
+  pop();
 
   //Right Eye
   push();
@@ -898,17 +933,18 @@ function applyPaperTexture(textureType) {
   noiseGraphics.colorMode(HSB, 360, 100, 100, 255);
 }
 
+
 // Button class
 class Button {
   constructor(label, x, y, action) {
-    this.label = label;
-    this.x = x;
-    this.y = y;
-    this.w = 80;
-    this.h = 30;
-    this.action = action;
+    this.label = label; // Text shown on the button
+    this.x = x; // X Position on the canvas
+    this.y = y;  // Y Position on the canvas
+    this.w = 80; // Button width
+    this.h = 30; // Button width
+    this.action = action; // A function that runs when the button is pressed
   }
-  isHovered() {
+  isHovered() { // Returns true if the mouse is over the button area
     return mouseX > this.x && mouseX < this.x + this.w &&
       mouseY > this.y && mouseY < this.y + this.h;
   }
@@ -920,25 +956,25 @@ class Button {
       fill(248, 208, 19); //Default Color
     }
     noStroke();
-    rect(this.x, this.y, this.w, this.h, 5);
+    rect(this.x, this.y, this.w, this.h, 5); // Draw button (rounded)
     textSize(17);
     fill(0);
-    text(this.label, this.x + this.w / 2, this.y + this.h / 2);
+    text(this.label, this.x + this.w / 2, this.y + this.h / 2); // Draw label
   }
 
-  clicked(mx, my) {
+  clicked(mx, my) { // Checks if the mouse click falls inside the button’s area
     return mx > this.x && mx < this.x + this.w && my > this.y && my < this.y + this.h;
   }
 }
 
-function drawButtons() {
+function drawButtons() { // Loop through the array of buttons and calls show() on each one
   for (let b of buttons) {
     b.show();
   }
 }
 
 // This code implements the function of updating activeLevel when the mouse clicks the button
-function mousePressed() {
+function mousePressed() { // Button clicked
   for (let b of buttons) {
     if (b.clicked(mouseX, mouseY)) {
       b.action();
@@ -946,9 +982,9 @@ function mousePressed() {
   }
 }
 
-function windowResized() {
+function windowResized() { // Make elements adjust to window size
   resizeCanvas(windowWidth, windowHeight);
-  createButtons(); 
+  createButtons();  // Recalculate button positions
   
   scaleX = windowWidth / originW;
   scaleY = windowHeight / originH;
