@@ -88,6 +88,8 @@ function draw() {
   const layer   = (activeLevel <= 1) ? pg : pg2;
   image(layer, 0, 0, targetW, targetH);
 
+  drawBridge();
+  
   // drawScreamCharacter() needs a label like "level 2", so this array
   // Turns the number 1-4 into that text. Slot 0 is an empty string;
   // When activeLevel is 0 we return nothing and avoid an error.
@@ -96,6 +98,13 @@ function draw() {
 
   drawScreamCharacter(levelTexts[activeLevel]);   // draw character
   }
+
+  // Each level is a little closer to the screaming people
+  // Setting a different position for each level creates the effect of movement.
+   let ghostX = [10, 50, 100, 150]; 
+   let ghostY = [100, 150, 200, 250];
+   drawGhostCharacter(ghostX[activeLevel-1], ghostY[activeLevel-1], 0.4); 
+
   drawButtons(); // Draw Buttons, see bottom of code; the button is always rendered last, ensuring it is above all layers
 }
 
@@ -379,6 +388,106 @@ class BrushStroke {
   }
 }  // End of Lake and Land drawing
 
+//draw bridge
+//I just tried adding and subtracting different distances and looking at the positional effects to adjust the slope a little bit.
+function drawBridge() {
+  noStroke(); 
+  fill(139, 69, 19); // brown
+
+  // Drawing a ‘wide’ bridge with a quadrilateral
+  let x1 = 0;
+  let y1 = height / 2; // left up
+
+  let x2 = 0;
+  let y2 = height; // left down
+
+  let x3 = width / 2;
+  let y3 = height;  // right down
+
+  let x4 = width / 10;
+  let y4 = height /2; // right up
+
+  quad(x1, y1, x2, y2, x3, y3, x4, y4); // color the bridge
+
+  //railings   
+  //The angle and start point of the slant line are manually and repeatedly adjusted data
+
+  stroke(101, 67, 33); // brown
+  strokeWeight(10);
+
+  line(x1 , y1-20 , x4+5 , y4-20); 
+  line(x4+5 , y4-20 , x3+50 , y3)
+
+  stroke(193, 154, 107,70); // light brown
+  strokeWeight(10);
+  line(x1 , y1+20 , x2+150 , y2); 
+  line(x1+70 , y1+60 , x2+250 , y2); 
+
+    stroke(75, 54, 33,100); // dark brown
+  strokeWeight(8);
+  line(x1 , y1+120 , x2+80 , y2); 
+  line(x1+80 , y1+30 , x2+350 , y2); 
+
+
+}
+
+//ghost character  
+//To make custom shapes, I traced the reference image in Adobe Illustrator and exported it as an SVG vector. 
+//I then opened the SVG file in VS Code to access the path data, which I converted into p5.js code 
+//using ChatGPT and the svg2p5.com converter. 
+
+//chat GPT links:  https://chatgpt.com/share/684a6dbd-bae4-8003-b2d5-6f8f3033412e
+//tutorial on youtube links:  https://www.youtube.com/watch?v=BATJDnUsTiU
+
+
+function drawGhostCharacter(x = 200, y = 600, scaleVal = 1) {
+  push();
+  translate(x, y);
+  scale(scaleVal);
+
+  // black body with white stroke
+  fill(0);
+  stroke(255);
+  strokeWeight(1);
+  beginShape();
+  vertex(160.16, 787.79);
+  bezierVertex(173.49, 754.28, 176.56, 729.45, 176.56, 729.45);
+  bezierVertex(179.64, 704.62, 181.17, 668.01, 181.69, 636.36);
+  bezierVertex(182.2, 604.71, 188.87, 520.31, 205.27, 491.14);
+  bezierVertex(221.67, 461.97, 227.31, 450.18, 255.51, 455.15);
+  bezierVertex(283.71, 460.12, 293.96, 469.42, 294.47, 487.42);
+  bezierVertex(294.98, 505.42, 307.8, 559.41, 307.28, 596.64);
+  bezierVertex(306.77, 633.88, 289.35, 671.73, 290.38, 705.86);
+  bezierVertex(291.41, 740, 319.6, 781.58, 330.36, 787.79);
+  bezierVertex(341.12, 794, 306.78, 813.85, 281.15, 808.89);
+  bezierVertex(255.52, 803.93, 229.38, 803.64, 208.36, 809.68);
+  bezierVertex(187.34, 815.72, 175.02, 804.55, 160.16, 787.79);
+  endShape(CLOSE);
+
+  // white face mask
+  noStroke();
+  fill(255);
+  beginShape();
+  vertex(232.51, 479.62);
+  bezierVertex(242.34, 467.33, 269.26, 469.1, 277.6, 494.42);
+  bezierVertex(283.67, 512.85, 280.22, 528.49, 278.65, 541.61);
+  bezierVertex(276.76, 557.4, 263.71, 577.35, 244.3, 572.6);
+  bezierVertex(225.81, 568.08, 223.86, 556.4, 221.5, 540.77);
+  bezierVertex(217.57, 514.69, 222.68, 491.9, 232.51, 479.62);
+  endShape(CLOSE);
+
+  // eyes,mouth...  black
+  fill(0)
+  ellipse(238.04, 508.01, 8.13 * 2, 3.81 * 2);
+  ellipse(239.08, 494.61, 1.56 * 2, 7.27 * 2);
+  ellipse(267.89, 497.15, 1.56 * 2, 7.27 * 2);
+  ellipse(236.99, 521.41, 1.56 * 2, 7.27 * 2);
+  ellipse(266.84, 525.13, 1.56 * 2, 7.27 * 2);
+  ellipse(266.84, 510.55, 8.13 * 2, 3.81 * 2);
+  ellipse(249.37, 549.05, 7.87 * 2, 11.53 * 2);
+  pop();
+}
+
 
 /* Character
 To make custom shapes, I traced the reference image in Adobe Illustrator and exported it as an SVG vector. 
@@ -397,6 +506,7 @@ function drawScreamCharacter(expression) {   // Start of character drawing
 
   //Body
   push(); // Save current drawing style and transform state, keeps shape in place
+  noStroke();
   beginShape(); // Start of custom shape
   fill('#4a4b4c');
   // Starting point
