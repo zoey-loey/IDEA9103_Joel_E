@@ -116,32 +116,37 @@ https://github.com/tusharvikky/Strut/blob/41c6e5359b727d55cdfb5c5f2d5789824e79d7
 https://github.com/xaota/ui/blob/4c7bda33feda53b75c24d3e2b7d12ee9aada4b2d/components/pagination.js#L3
 Both links use DOM buttons, not p5.js, but we borrowed the same “array + push” idea. Here each Button is a lightweight p5.js object that
 draws a rectangle on the canvas and stores a callback; every click is processed later in mousePressed(). */
-function createButtons() { 
+
+function createButtons() {
   buttons = [];
   let y = 50; // vertical position of buttons
   let spacing = 150; // horizontal spacing between buttons
 
   // Define Buttons
-  
+  // Add perlin noise part
+
   buttons.push(new Button("Level 1", width / 2 - spacing, y, () => {
     activeLevel = 1;
     drawPG2();
+    updateNoiseLayer(); 
   }));
   buttons.push(new Button("Level 2", width / 2 - spacing / 3, y, () => {
     activeLevel = 2;
     drawPG2();
+    updateNoiseLayer();
   }));
   buttons.push(new Button("Level 3", width / 2 + spacing / 3, y, () => {
     activeLevel = 3;
     drawPG2();
+    updateNoiseLayer();
   }));
   buttons.push(new Button("Level 4", width / 2 + spacing, y, () => {
     activeLevel = 4;
     drawPG2();
+    updateNoiseLayer();
   }));
 }
 // End of button drawing
-
 
 // Below part added for lake and land
 function drawPG1() {
@@ -866,29 +871,57 @@ function drawNoiseLines() {
   for (let x = -20; x < width + 20; x += gap) {
     for (let y = -20; y < height + 20; y += gap) {
       let colorNoise = noise(x * rez2, y * rez2);
+
+      // This is the original color of Perlin noise (Level 1)
       let hue;
       if (colorNoise < 0.3) hue = map(colorNoise, 0, 0.3, 210, 220);
       else if (colorNoise < 0.7) hue = map(colorNoise, 0.3, 0.7, 30, 50);
       else hue = map(colorNoise, 0.7, 1, 20, 30);
-
       let saturation = map(colorNoise, 0, 1, 70, 90);
       let brightness = map(colorNoise, 0, 1, 20, 80);
-      noiseGraphics.stroke(hue, saturation, brightness, 160 + random(-30, 30));
+      let strokeAlpha = 160 + random(-30, 30);
+      noiseGraphics.stroke(hue, saturation, brightness, strokeAlpha);
 
-      let currentX = x + random(-startVary, startVary);
-      let currentY = y + random(-startVary, startVary);
+      let varyAmountArr = [5, 10, 25, 30];
+      let lenAmountArr = [8, 10, 12, 5];  // Special short lines for Level 4
+      let strokeFactorArr = [0.5, 0.7, 1.0, 0.9];
+
+      let varyAmount = varyAmountArr[activeLevel - 1];
+      let lenAmount = lenAmountArr[activeLevel - 1];
+      let strokeFactor = strokeFactorArr[activeLevel - 1];
+
+      let currentX = x + random(-varyAmount, varyAmount);
+      let currentY = y + random(-varyAmount, varyAmount);
+
       for (let step = 10; step > 0; step--) {
-        noiseGraphics.strokeWeight(step * 0.6);
+        let strokeW = step * strokeFactor;
+        noiseGraphics.strokeWeight(strokeW);
+
         let angleNoise = (noise(currentX * rez1, currentY * rez1) - 0.2) * 2;
-        let angle = angleNoise * PI * 0.2;
-        let nextX = cos(angle) * length + currentX;
-        let nextY = sin(angle) * length + currentY;
+        let angle = angleNoise * PI * (activeLevel === 1 ? 0.1 : 0.4 + 0.2 * activeLevel);
+
+        // Level 4
+        if (activeLevel === 4 && random() < 0.3) {
+          currentX += random(-40, 40);
+          currentY += random(-40, 40);
+        }
+
+        let nextX = cos(angle) * lenAmount + currentX;
+        let nextY = sin(angle) * lenAmount + currentY;
         noiseGraphics.line(currentX, currentY, nextX, nextY);
         currentX = nextX;
         currentY = nextY;
       }
     }
   }
+}
+
+function updateNoiseLayer() {
+  noiseGraphics.clear();
+  noiseGraphics.background(25, 80, 30);
+  drawNoiseLines();
+  applyPaperTexture(1);
+  applyPaperTexture(0);
 }
 
 function applyPaperTexture(textureType) {
