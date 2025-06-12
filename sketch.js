@@ -8,9 +8,6 @@ let startVary;
 let noiseGraphics; // Perlin noise part 
 
 // Merge lake and land L2-L4
-let btnWidth = 243.87;
-let btnHeight = 99.87;
-let btnRadius = 49.94;
 let activeLevel = 0;
 let originW = 1811;
 let originH = 1280;
@@ -66,161 +63,19 @@ function setup() {
   windowResized();
 }
 
-// function setup() {
-//   createCanvas(windowWidth, windowHeight);
-//   textAlign(CENTER, CENTER);
-
-
-//   createButtons(); // Setup initial buttons based on window size
-// }
-
-// // Beginning of Perlin noise
-// function setup() {    
-//   createCanvas(windowWidth, windowHeight);
-//   colorMode(HSB, 360, 100, 100, 255);
-//   background(25, 80, 30); 
-
-//   rez1 = 0.006;
-//   rez2 = 0.003;
-//   gap = 15;
-//   length = 12; 
-//   startVary = 40;
-//   startColor = 40;
-//   strokeCap(SQUARE);
-
-//   drawNoiseLines();
-//   applyPaperTexture(1);
-//   applyPaperTexture(0);
-// }
-
-
-// function draw() {}
-
-// function drawNoiseLines() {
-//   for (let x = -20; x < width + 20; x += gap) {
-//     for (let y = -20; y < height + 20; y += gap) {
-//       let colorNoise = noise(x * rez2, y * rez2);
-//       let hue;
-
-//       if (colorNoise < 0.3) {
-//         hue = map(colorNoise, 0, 0.3, 210, 220); 
-//       } else if (colorNoise < 0.7) {
-//         hue = map(colorNoise, 0.3, 0.7, 30, 50); 
-//       } else {
-//         hue = map(colorNoise, 0.7, 1, 20, 30); 
-//       }
-
-//       let saturation = map(colorNoise, 0, 1, 70, 90);
-//       let brightness = map(colorNoise, 0, 1, 20, 80);
-
-//       stroke(hue, saturation, brightness, 160 + random(-30, 30)); 
-
-//       let currentX = x + random(-startVary, startVary);
-//       let currentY = y + random(-startVary, startVary);
-
-//       for (let step = 10; step > 0; step--) {
-//         strokeWeight(step * 0.6); 
-
-//         let angleNoise = (noise(currentX * rez1, currentY * rez1) - 0.2) * 2;
-//         let angle = angleNoise * PI * 0.2;
-
-//         let nextX = cos(angle) * length + currentX;
-//         let nextY = sin(angle) * length + currentY;
-
-//         line(currentX, currentY, nextX, nextY);
-
-//         currentX = nextX;
-//         currentY = nextY;
-//       }
-//     }
-//   }
-// }
-
-// function applyPaperTexture(textureType) {
-//   noFill();
-//   let colorVariation = 15;
-//   let textureCount;
-//   let alphaValue;
-
-//   if (textureType < 1) {
-//     textureCount = 10000;
-//     strokeWeight(width * 0.02);
-//     alphaValue = 15;
-//   } else {
-//     textureCount = 15000;
-//     strokeWeight(max(1, width * 0.0011));
-//     alphaValue = 210;
-//   }
-
-//   colorMode(RGB);
-//   for (let i = 0; i < textureCount; i++) {
-//     let x = random(width);
-//     let y = random(height);
-//     let sampledColor = get(x, y);
-//     stroke(
-//       sampledColor[0] + random(-colorVariation, colorVariation),
-//       sampledColor[1] + random(-colorVariation, colorVariation),
-//       sampledColor[2] + random(-colorVariation, colorVariation),
-//       alphaValue
-//     );
-
-//     push();
-//     translate(x, y);
-//     rotate(random(TWO_PI));
-//     curve(
-//       height * random(0.035, 0.14),
-//       0,
-//       0,
-//       height * random(-0.03, 0.03),
-//       height * random(-0.03, 0.03),
-//       height * random(0.035, 0.07),
-//       height * random(0.035, 0.07),
-//       height * random(0.035, 0.14)
-//     );
-//     pop();
-//   }
-//   colorMode(HSB, 360, 100, 100, 255);
-// }   // Perlin noise part ends
-
-// This part was previous draw code:
-// function draw() {
-//   image(noiseGraphics, 0, 0); 
-
-//   // The below lines belong to my group member
-//   drawWave();
-//   drawLayerBottom();
-//   drawSeaSunlight();
-//   drawBubbleland();
-//   drawLandCircles();
-//   drawRightCircles();
-
-//   drawScreamCharacter(currentExpression); 
-//   drawButtons(); 
-// }
-// When I introduced the pg2 layer of Level 2-4 (brush stroke, interactive drawing), the original structure could not be displayed correctly.
-// 1) All content is drawn in real time on the main canvas, without layers, and cannot be controlled to refresh or combine independently. 2) The button state does not control the drawn content, and all layers are always drawn, resulting in performance waste and difficulty in implementing Level switching. 3) noiseGraphics is not scaled, and will be misaligned when it is inconsistent with the canvas size.
-// So it was changed to the following:
-
+/* When the pg2 layer was added to Levels 2–4 (for brush strokes and interactive drawing), issues arose with the original structure:
+1) All content was drawn directly to the main canvas in real time, making it impossible to manage layers independently.
+2) Button states couldn't control which layers were drawn, leading to unnecessary rendering and making Level switching difficult.
+3) noiseGraphics wasn’t scaled properly, causing alignment issues when its size didn’t match the canvas. */
 
 function draw() {
   background(255);
   noStroke();
-  image(noiseGraphics, 0, 0, width, height); // Originally the noiseGraphics layer was drawn using its original width and height. However, when merged with other elements, the dimensions of the noiseGraphics layer differed from the main canvas, causing size mismatches or incorrect display. To resolve this issue, the noiseGraphics layer is explicitly scaled to match the width and height of the main canvas, ensuring consistency across the final output
+  image(noiseGraphics, 0, 0, width, height); 
 
-  // push()
-  // // canvas scale
-  // scale(scaleX, scaleY);
+  /* The original noiseGraphics layer used its default size, which caused mismatches when combined with other elements. To fix this, 
+  it is now explicitly scaled to match the main canvas dimensions, ensuring consistent and proportionate display in the final output. */
 
-  // // Draw different layer contents according to the current button state
-  // if (activeLevel <= 1) {
-  //   image(pg, 0, 0);
-  // } else if (activeLevel > 1) {
-  //   image(pg2, 0, 0);
-  // }
-  // pop();
-  // Lakes and landmasses could not be resized, so based on Chatgpt's troubleshooting advice I changed the code to the following
-
-  // Just drag the off-screen canvas to the target width and height in equal proportions.
   const targetW = originW * scaleX;   // scaleX = width / originW
   const targetH = originH * scaleY;   // scaleY = height / originH
   const layer   = (activeLevel <= 1) ? pg : pg2;
@@ -228,10 +83,10 @@ function draw() {
 
   if (activeLevel > 0) {
   let levelTexts = ["", "level 1", "level 2", "level 3", "level 4"];
-  // Render the character
-  drawScreamCharacter(levelTexts[activeLevel]);
+
+  drawScreamCharacter(levelTexts[activeLevel]);   // draw character
   }
-  drawButtons(); 
+  drawButtons(); // draw Buttons
 }
 
 // Start of button drawing 
@@ -259,6 +114,7 @@ function createButtons() {
     drawPG2();
   }));
 }
+
 
 // This part of the code draws buttons of different colors depending on the currently activated button state. Use fill() to set the fill color, noStroke() to remove the border, rect() to draw a rounded rectangle, and text() to display the button label.
 // Reference: p5.js official documentation on fill(), noStroke(), rect(), and text().
@@ -304,7 +160,7 @@ function drawPG2() {
   let spaces = [180, 140, 100]
   groups = []
 
-  // Traverse the pixels of level1, use the pixels that meet the conditions as the center point of the group, and create a group object
+  // Traverse the pixels of level 1, use the pixels that meet the conditions as the center point of the group, and create a group object
   for (let x = 0; x < pg.width; x += spaces[activeLevel - 2]) {
     for (let y = 300; y < pg.height; y += spaces[activeLevel - 2]) {
       // Get the color value of the current pixel
@@ -321,6 +177,7 @@ function drawPG2() {
     groups[i].show()
   }
 }
+
 
 // Start of Lake and Land drawing
 function drawWave() {
