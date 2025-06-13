@@ -21,6 +21,8 @@ let groups = [];
 // let currentExpression = 'level 1'; Because the lake land code already has let activeLevel = 0; to indicate the current level, so remove this first
 let buttons = [];
 
+// Storing the location of all ghosts
+let ghosts = [];
 
 function setup() {
   createCanvas(windowWidth, windowHeight); // Canvas fit window size
@@ -90,6 +92,26 @@ function draw() {
 
   drawBridge();
   
+  // Each level is a little closer to the screaming people
+  // Setting a different position for each level creates the effect of movement.
+   let ghostX = [10, 50, 100, 150]; 
+   let ghostY = [100, 150, 200, 250];
+   drawGhostCharacter(ghostX[activeLevel-1], ghostY[activeLevel-1], 0.4); 
+   // Add a ghost every two seconds (every 120 frames)
+  if (frameCount % 120 === 0) {
+    ghosts.push({ x: -100, y: height/4-150, speedX: 1.5, speedY: 1.5 });  }
+    //ghosts.push({ x: 0, y: height / 2, speedX: 1.5, speedY: 1.5 });
+    //The first attempts to move the trajectory were too low and didn't feel right, 
+    //so I repeatedly changed and adjusted the position of the start point to make it more accurate
+
+    
+  // All ghosts move towards the screaming man
+  for (let i = 0; i < ghosts.length; i++) {
+    ghosts[i].x += ghosts[i].speedX;
+    ghosts[i].y += ghosts[i].speedY;
+    drawGhostCharacter(ghosts[i].x, ghosts[i].y, 0.4);
+  }
+
   // drawScreamCharacter() needs a label like "level 2", so this array
   // Turns the number 1-4 into that text. Slot 0 is an empty string;
   // When activeLevel is 0 we return nothing and avoid an error.
@@ -98,12 +120,6 @@ function draw() {
 
   drawScreamCharacter(levelTexts[activeLevel]);   // draw character
   }
-
-  // Each level is a little closer to the screaming people
-  // Setting a different position for each level creates the effect of movement.
-   let ghostX = [10, 50, 100, 150]; 
-   let ghostY = [100, 150, 200, 250];
-   drawGhostCharacter(ghostX[activeLevel-1], ghostY[activeLevel-1], 0.4); 
 
   drawButtons(); // Draw Buttons, see bottom of code; the button is always rendered last, ensuring it is above all layers
 }
